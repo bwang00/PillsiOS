@@ -45,10 +45,10 @@ final class HomeViewModel {
         let guideDescriptor = FetchDescriptor<Guide>(sortBy: [SortDescriptor(\.sortOrder)])
         guides = (try? modelContext.fetch(guideDescriptor)) ?? []
 
-        let sessionDescriptor = FetchDescriptor<Session>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)],
-            fetchLimit: 5
+        var sessionDescriptor = FetchDescriptor<Session>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
+        sessionDescriptor.fetchLimit = 5
         recentSessions = (try? modelContext.fetch(sessionDescriptor)) ?? []
     }
 
@@ -60,7 +60,7 @@ final class HomeViewModel {
             ).first
             if let existing {
                 existing.displayName = dto.display_name
-                existing.description = dto.description
+                existing.summary = dto.description
                 existing.durationSeconds = dto.duration_seconds
                 existing.sortOrder = dto.sort_order
                 existing.isActive = dto.is_active
@@ -92,10 +92,10 @@ final class HomeViewModel {
         }
         try? modelContext.save()
 
-        let descriptor = FetchDescriptor<Session>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)],
-            fetchLimit: 5
+        var descriptor = FetchDescriptor<Session>(
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
+        descriptor.fetchLimit = 5
         recentSessions = (try? modelContext.fetch(descriptor)) ?? []
     }
 

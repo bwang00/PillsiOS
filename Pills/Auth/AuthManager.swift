@@ -96,7 +96,9 @@ extension AuthManager: ASAuthorizationControllerDelegate {
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            continuation?.resume(throwing: AuthError.invalidCredential)
+            Task { @MainActor in
+                self.continuation?.resume(throwing: AuthError.invalidCredential)
+            }
             return
         }
         let userId = credential.user

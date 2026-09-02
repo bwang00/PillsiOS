@@ -22,7 +22,7 @@ struct GuideCard: View {
                     Text(guide.displayName)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    Text(guide.description)
+                    Text(guide.summary)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)

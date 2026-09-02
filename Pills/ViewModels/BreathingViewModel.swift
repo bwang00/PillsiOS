@@ -34,6 +34,7 @@ final class BreathingViewModel {
     private var phaseStartTime: Date?
     private var timerTask: Task<Void, Never>?
     private var sessionId: String?
+    private var sessionStartTime: Date?
 
     // MARK: - Dependencies
 
@@ -68,6 +69,7 @@ final class BreathingViewModel {
         currentCycle = 0
         currentPhaseIndex = 0
         elapsedSeconds = 0
+        sessionStartTime = Date()
         isRunning = true
 
         await runCycleLoop()
@@ -147,7 +149,9 @@ final class BreathingViewModel {
             phaseProgress = Double(step + 1) / Double(steps)
 
             if step % 20 == 0 { // Update elapsed seconds ~every second
-                elapsedSeconds = Int(Date().timeIntervalSince(phaseStartTime ?? Date()) + Double(currentCycle * cycleDuration) + phaseOffset)
+                if let sessionStart = sessionStartTime {
+                    elapsedSeconds = Int(Date().timeIntervalSince(sessionStart))
+                }
             }
         }
     }

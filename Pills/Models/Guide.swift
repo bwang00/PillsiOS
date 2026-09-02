@@ -8,7 +8,7 @@ final class Guide {
     @Attribute(.unique) var slug: String
     var category: String
     var displayName: String
-    var description: String
+    var summary: String
     var durationSeconds: Int
     var sortOrder: Int
     var isActive: Bool
@@ -19,7 +19,7 @@ final class Guide {
         slug: String,
         category: String,
         displayName: String,
-        description: String,
+        summary: String,
         durationSeconds: Int,
         sortOrder: Int,
         isActive: Bool,
@@ -28,7 +28,7 @@ final class Guide {
         self.slug = slug
         self.category = category
         self.displayName = displayName
-        self.description = description
+        self.summary = summary
         self.durationSeconds = durationSeconds
         self.sortOrder = sortOrder
         self.isActive = isActive
@@ -76,7 +76,7 @@ extension Guide {
             slug: dto.slug,
             category: dto.category,
             displayName: dto.display_name,
-            description: dto.description,
+            summary: dto.description,
             durationSeconds: dto.duration_seconds,
             sortOrder: dto.sort_order,
             isActive: dto.is_active,
