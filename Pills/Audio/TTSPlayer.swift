@@ -15,9 +15,16 @@ final class TTSPlayer: ObservableObject {
 
     private var player: AVAudioPlayer?
     private let api: TTSAPIProtocol
+    private let onError: (Error) -> Void
 
-    init(api: TTSAPIProtocol = APIClient.shared) {
+    init(
+        api: TTSAPIProtocol = APIClient.shared,
+        onError: @escaping (Error) -> Void = { error in
+            print("⚠️ TTS fetch failed: \(error)")
+        }
+    ) {
         self.api = api
+        self.onError = onError
         configureAudioSession()
     }
 
@@ -33,11 +40,14 @@ final class TTSPlayer: ObservableObject {
 
     /// Fetches TTS audio from the server and plays it immediately.
     func speak(_ text: String) async {
+        guard !Task.isCancelled else { return }
         do {
             let audioData = try await api.synthesizeSpeech(text)
+            guard !Task.isCancelled else { return }
             play(data: audioData)
         } catch {
-            print("⚠️ TTS fetch failed: \(error)")
+            guard !Task.isCancelled, !(error is CancellationError) else { return }
+            onError(error)
         }
     }
 

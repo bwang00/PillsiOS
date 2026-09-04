@@ -4,6 +4,7 @@ import SwiftData
 struct BreathingView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     let guide: Guide
 
@@ -48,21 +49,30 @@ struct BreathingView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if let vm = viewModel, vm.isRunning {
                     Button("结束") {
-                        Task { await vm.stop() }
+                        vm.stop()
                     }
                 }
             }
         }
         .onAppear {
-            if viewModel == nil {
-                viewModel = BreathingViewModel(
+            if let viewModel {
+                viewModel.handleViewAppearance(isAppActive: scenePhase == .active)
+            } else {
+                let viewModel = BreathingViewModel(
                     guide: guide,
                     modelContext: modelContext,
                     ttsPlayer: ttsPlayer
                 )
+                viewModel.handleViewAppearance(isAppActive: scenePhase == .active)
+                self.viewModel = viewModel
             }
         }
-        .interactiveDismissDisabled(viewModel?.isRunning == true)
+        .onChange(of: scenePhase) { _, newPhase in
+            viewModel?.handleAppActivity(isActive: newPhase == .active)
+        }
+        .onDisappear {
+            viewModel?.handleViewDisappearance()
+        }
     }
 
     // MARK: - Control button
@@ -84,7 +94,7 @@ struct BreathingView: View {
                 .padding(.horizontal, 32)
             } else if vm.isRunning {
                 Button {
-                    Task { await vm.stop() }
+                    vm.stop()
                 } label: {
                     Label("停止", systemImage: "stop.fill")
                         .fontWeight(.semibold)
