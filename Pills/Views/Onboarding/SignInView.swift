@@ -11,9 +11,11 @@ struct SignInView: View {
 
             // App branding
             VStack(spacing: 12) {
-                Image(systemName: "leaf.circle.fill")
-                    .font(.system(size: 80))
-                    .foregroundStyle(.green.gradient)
+                Image("GinkgoLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
 
                 Text("Pills")
                     .font(.largeTitle)

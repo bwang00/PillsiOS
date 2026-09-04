@@ -290,9 +290,11 @@ struct ChatWelcomeView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Image(systemName: "leaf.circle.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(.green.opacity(0.8))
+            Image("GinkgoLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
+                .clipShape(Circle())
 
             VStack(spacing: 8) {
                 Text("你好，我是你的 AI 教练")
