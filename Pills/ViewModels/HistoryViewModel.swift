@@ -2,6 +2,13 @@ import Foundation
 import SwiftData
 import Observation
 
+/// Protocol for the session API methods HistoryViewModel needs. Enables testability.
+protocol HistoryAPIProtocol: Sendable {
+    func fetchSessions(limit: Int, offset: Int) async throws -> [SessionDTO]
+}
+
+extension APIClient: HistoryAPIProtocol {}
+
 /// ViewModel for the session history screen.
 /// Fetches past sessions from the server with pagination, caches locally.
 @MainActor
@@ -13,11 +20,13 @@ final class HistoryViewModel {
     var errorMessage: String?
 
     private let modelContext: ModelContext
+    private let api: HistoryAPIProtocol
     private var currentOffset = 0
     private let pageSize = 20
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, api: HistoryAPIProtocol = APIClient.shared) {
         self.modelContext = modelContext
+        self.api = api
     }
 
     func loadInitial() async {
@@ -43,7 +52,7 @@ final class HistoryViewModel {
         errorMessage = nil
 
         do {
-            let dtos = try await APIClient.shared.fetchSessions(
+            let dtos = try await api.fetchSessions(
                 limit: pageSize,
                 offset: currentOffset
             )

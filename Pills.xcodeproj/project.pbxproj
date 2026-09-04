@@ -22,12 +22,14 @@
 		7C615640ADB028591AF73516 /* BreathingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79778FC50F3A8F8F52B3C359 /* BreathingViewModel.swift */; };
 		7CE883B848CDDEC5374B4B45 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE2D7C51DB7DCAEF34486D8 /* HistoryViewModel.swift */; };
 		93948072A769296532DDC062 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */; };
+		93C3B400EF4CD88EE0A228CE /* ChatViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163451010F3574A6297CC00E /* ChatViewTests.swift */; };
 		9C3359826B20FF04928E911F /* TTSPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656900B340AF63454BA85B5 /* TTSPlayer.swift */; };
 		A0BC6DA31361E652053F64D1 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */; };
 		A370C3B3BFE1649EA5A41CF0 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0225A277439908B394745 /* APIClient.swift */; };
 		AD87F4C562C098CF01674C60 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */; };
 		BC787313529F93F4581A2B24 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A904A77463CD7BD3B1394E38 /* ChatView.swift */; };
 		BD866C90FDC892AD542C595C /* GuideCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5D31B2725DDFF434B58109 /* GuideCard.swift */; };
+		BFA6BB544535D4B11DC054E7 /* HistoryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */; };
 		DB0721311707A449A9E807B8 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728DC388AA76C4E0470F0BFA /* SignInView.swift */; };
 		DEC14015C58662C28FD408F6 /* OfflineBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C44CC0225A86B7068A9798 /* OfflineBanner.swift */; };
 		EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C7C94431546810939E3E823 /* Assets.xcassets */; };
@@ -49,6 +51,7 @@
 
 /* Begin PBXFileReference section */
 		0520C179B5605E5897848454 /* BreathingCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingCircle.swift; sourceTree = "<group>"; };
+		163451010F3574A6297CC00E /* ChatViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewTests.swift; sourceTree = "<group>"; };
 		16E2D0FD8BECC29E7840C55D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		2E5195E2AD8EC2264FA8CE60 /* PillsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillsApp.swift; sourceTree = "<group>"; };
@@ -76,6 +79,7 @@
 		B9FD5039D208ACB498917981 /* Pills.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Pills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		CE5D31B2725DDFF434B58109 /* GuideCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideCard.swift; sourceTree = "<group>"; };
+		ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModelTests.swift; sourceTree = "<group>"; };
 		F34E0C2646BBF3E76733E19F /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		F5CCD7C2CE9651970E68A1F9 /* Pills.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pills.entitlements; sourceTree = "<group>"; };
 		F7AD9E8CD27D6D7F84B1CB62 /* PillsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PillsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -162,6 +166,8 @@
 				99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */,
 				94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */,
 				B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */,
+				163451010F3574A6297CC00E /* ChatViewTests.swift */,
+				ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */,
 				62FA3B9DC4532F7F85453B64 /* TTSPlayerTests.swift */,
 			);
 			path = PillsTests;
@@ -379,6 +385,8 @@
 				6EB6F1CE4C60D6AD2F4C11BB /* APIErrorTests.swift in Sources */,
 				1A4C12612B5B40D247400765 /* AuthManagerTests.swift in Sources */,
 				7B6E689B13BB4A8E3D26CD4C /* ChatViewModelTests.swift in Sources */,
+				93C3B400EF4CD88EE0A228CE /* ChatViewTests.swift in Sources */,
+				BFA6BB544535D4B11DC054E7 /* HistoryViewModelTests.swift in Sources */,
 				447A89B957FCA250A0496F42 /* TTSPlayerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
