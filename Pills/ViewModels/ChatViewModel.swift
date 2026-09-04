@@ -2,6 +2,17 @@ import Foundation
 import SwiftData
 import Observation
 
+/// Protocol for the API methods ChatViewModel needs. Enables testability.
+protocol ChatAPIProtocol: Sendable {
+    func createConversation(username: String?) async throws -> ConversationDTO
+    func fetchConversationDetail(_ id: String) async throws -> ConversationDetailDTO
+    func fetchConversations(username: String?, limit: Int) async throws -> [ConversationDTO]
+    func sendMessage(conversationId: String, role: String, content: String) async throws -> MessageDTO
+    func sendAIChat(message: String, history: [AIChatHistoryEntry], username: String?) async throws -> AIChatResponse
+}
+
+extension APIClient: ChatAPIProtocol {}
+
 /// ViewModel for the AI Chat screen.
 /// Manages conversation state, message sending, and AI responses.
 @MainActor
@@ -15,6 +26,7 @@ final class ChatViewModel {
 
     private let modelContext: ModelContext
     private let username: String?
+    private let api: ChatAPIProtocol
 
     struct ChatMessageItem: Identifiable {
         let id: String
@@ -23,9 +35,10 @@ final class ChatViewModel {
         let timestamp: Date
     }
 
-    init(modelContext: ModelContext, username: String?) {
+    init(modelContext: ModelContext, username: String?, api: ChatAPIProtocol = APIClient.shared) {
         self.modelContext = modelContext
         self.username = username
+        self.api = api
     }
 
     // MARK: - Conversation management
@@ -40,7 +53,7 @@ final class ChatViewModel {
 
     func createNewConversation() async {
         do {
-            let dto = try await APIClient.shared.createConversation(username: username)
+            let dto = try await api.createConversation(username: username)
             conversationId = dto.id
             messages = []
         } catch {
@@ -50,7 +63,7 @@ final class ChatViewModel {
 
     func loadConversation(_ id: String) async {
         do {
-            let detail = try await APIClient.shared.fetchConversationDetail(id)
+            let detail = try await api.fetchConversationDetail(id)
             conversationId = detail.id
             messages = detail.messages.map {
                 ChatMessageItem(
@@ -67,7 +80,7 @@ final class ChatViewModel {
 
     func loadConversationList() async -> [ConversationDTO] {
         do {
-            return try await APIClient.shared.fetchConversations(username: username, limit: 20)
+            return try await api.fetchConversations(username: username, limit: 20)
         } catch {
             return []
         }
@@ -100,7 +113,7 @@ final class ChatViewModel {
 
         // Save user message to server
         do {
-            _ = try await APIClient.shared.sendMessage(
+            _ = try await api.sendMessage(
                 conversationId: conversationId,
                 role: "user",
                 content: text
@@ -116,7 +129,7 @@ final class ChatViewModel {
 
         // Call AI
         do {
-            let response = try await APIClient.shared.sendAIChat(
+            let response = try await api.sendAIChat(
                 message: text,
                 history: history,
                 username: username
@@ -132,7 +145,7 @@ final class ChatViewModel {
 
             // Save AI message to server
             do {
-                _ = try await APIClient.shared.sendMessage(
+                _ = try await api.sendMessage(
                     conversationId: conversationId,
                     role: "assistant",
                     content: response.reply

@@ -14,7 +14,9 @@
 		291C3614A9F4C578447B0C4D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E0C2646BBF3E76733E19F /* Session.swift */; };
 		29C3C235D438473FFB1417F2 /* BreathingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC88A31CEF9B519F98B24B8E /* BreathingView.swift */; };
 		537D1CD99CCEC533D193AF85 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CDEE18D9263D31C15BCE /* HomeViewModel.swift */; };
+		6EB6F1CE4C60D6AD2F4C11BB /* APIErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */; };
 		7AE62F425D4B5367C285CD07 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F111F6BA3DF638F70ADD8C3 /* User.swift */; };
+		7B6E689B13BB4A8E3D26CD4C /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */; };
 		7C615640ADB028591AF73516 /* BreathingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79778FC50F3A8F8F52B3C359 /* BreathingViewModel.swift */; };
 		7CE883B848CDDEC5374B4B45 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE2D7C51DB7DCAEF34486D8 /* HistoryViewModel.swift */; };
 		93948072A769296532DDC062 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */; };
@@ -32,6 +34,16 @@
 		F7583CC9C466990B4EA176E4 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B2042186DFECE65DEBC25A /* HomeView.swift */; };
 		FD99D87F711B02F7ABE096AF /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 460B88A5659B20DB5C9525CE /* MainTabView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0046D2055471A9AAD158F7AC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 390F9007658880AE5FBB25B8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 50D0F2C28FD74EFE11639937;
+			remoteInfo = Pills;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0520C179B5605E5897848454 /* BreathingCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingCircle.swift; sourceTree = "<group>"; };
@@ -53,13 +65,16 @@
 		728DC388AA76C4E0470F0BFA /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		79778FC50F3A8F8F52B3C359 /* BreathingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingViewModel.swift; sourceTree = "<group>"; };
 		7F111F6BA3DF638F70ADD8C3 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIErrorTests.swift; sourceTree = "<group>"; };
 		A8A0225A277439908B394745 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		A904A77463CD7BD3B1394E38 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
 		B9FD5039D208ACB498917981 /* Pills.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Pills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
 		CE5D31B2725DDFF434B58109 /* GuideCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideCard.swift; sourceTree = "<group>"; };
 		F34E0C2646BBF3E76733E19F /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		F5CCD7C2CE9651970E68A1F9 /* Pills.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pills.entitlements; sourceTree = "<group>"; };
+		F7AD9E8CD27D6D7F84B1CB62 /* PillsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PillsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC88A31CEF9B519F98B24B8E /* BreathingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -68,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				ABA8341FF7131200A835B0FA /* Pills */,
+				84F9AFCD7B69CA9C501BD5E3 /* PillsTests */,
 				A57C0075D6CF5632FD15D262 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,6 +152,15 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		84F9AFCD7B69CA9C501BD5E3 /* PillsTests */ = {
+			isa = PBXGroup;
+			children = (
+				99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */,
+				B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */,
+			);
+			path = PillsTests;
+			sourceTree = "<group>";
+		};
 		8B57877301125AC0EAB326C3 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -163,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				B9FD5039D208ACB498917981 /* Pills.app */,
+				F7AD9E8CD27D6D7F84B1CB62 /* PillsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -246,6 +272,24 @@
 			productReference = B9FD5039D208ACB498917981 /* Pills.app */;
 			productType = "com.apple.product-type.application";
 		};
+		9C1F9DDF7B245F0F87690720 /* PillsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2D32E1231124E227CCD92D6C /* Build configuration list for PBXNativeTarget "PillsTests" */;
+			buildPhases = (
+				B0E338A6F3BE79E220CD07F6 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				382FD10E367F958954CA80DD /* PBXTargetDependency */,
+			);
+			name = PillsTests;
+			packageProductDependencies = (
+			);
+			productName = PillsTests;
+			productReference = F7AD9E8CD27D6D7F84B1CB62 /* PillsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -275,6 +319,7 @@
 			projectRoot = "";
 			targets = (
 				50D0F2C28FD74EFE11639937 /* Pills */,
+				9C1F9DDF7B245F0F87690720 /* PillsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -321,7 +366,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B0E338A6F3BE79E220CD07F6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EB6F1CE4C60D6AD2F4C11BB /* APIErrorTests.swift in Sources */,
+				7B6E689B13BB4A8E3D26CD4C /* ChatViewModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		382FD10E367F958954CA80DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 50D0F2C28FD74EFE11639937 /* Pills */;
+			targetProxy = 0046D2055471A9AAD158F7AC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		04E8C4FBD0FEB9DFF7BFA32E /* Debug */ = {
@@ -468,6 +530,22 @@
 			};
 			name = Debug;
 		};
+		762F4C1E1F3185E9612CD86D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pills";
+			};
+			name = Debug;
+		};
 		C3814A6E37D5B5E04B1B465A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -489,6 +567,22 @@
 			};
 			name = Release;
 		};
+		F19F2CE793BE2D7916344E3E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pills";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -497,6 +591,15 @@
 			buildConfigurations = (
 				04E8C4FBD0FEB9DFF7BFA32E /* Debug */,
 				C3814A6E37D5B5E04B1B465A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2D32E1231124E227CCD92D6C /* Build configuration list for PBXNativeTarget "PillsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				762F4C1E1F3185E9612CD86D /* Debug */,
+				F19F2CE793BE2D7916344E3E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
