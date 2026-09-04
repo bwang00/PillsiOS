@@ -4,11 +4,13 @@ import SwiftData
 @main
 struct PillsApp: App {
     @StateObject private var authManager = AuthManager()
+    @State private var networkMonitor = NetworkMonitor()
 
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environmentObject(authManager)
+                .environment(networkMonitor)
         }
         .modelContainer(for: [Guide.self, Session.self, Conversation.self, ChatMessage.self, User.self]) { result in
             if case .success(let container) = result {

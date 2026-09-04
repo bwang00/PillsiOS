@@ -31,6 +31,9 @@ struct HistoryView: View {
             .refreshable {
                 await viewModel?.refresh()
             }
+            .offlineBanner {
+                Task { await viewModel?.refresh() }
+            }
             .overlay {
                 if let vm = viewModel, vm.isLoading && vm.sessions.isEmpty {
                     ProgressView("加载中...")

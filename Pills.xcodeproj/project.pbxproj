@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		094FC9B9E1CA9B81A8CC1437 /* PillsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5195E2AD8EC2264FA8CE60 /* PillsApp.swift */; };
+		1006BBFD8E6DF34BEF7EECAA /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */; };
 		1ED9D1036C1982F7F01D647E /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A56384C2979D44B40B98947 /* Guide.swift */; };
 		2848C5A88ABC5B7711F2FF0A /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E2D0FD8BECC29E7840C55D /* HistoryView.swift */; };
 		291C3614A9F4C578447B0C4D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E0C2646BBF3E76733E19F /* Session.swift */; };
@@ -24,6 +25,7 @@
 		BC787313529F93F4581A2B24 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A904A77463CD7BD3B1394E38 /* ChatView.swift */; };
 		BD866C90FDC892AD542C595C /* GuideCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5D31B2725DDFF434B58109 /* GuideCard.swift */; };
 		DB0721311707A449A9E807B8 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728DC388AA76C4E0470F0BFA /* SignInView.swift */; };
+		DEC14015C58662C28FD408F6 /* OfflineBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C44CC0225A86B7068A9798 /* OfflineBanner.swift */; };
 		EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C7C94431546810939E3E823 /* Assets.xcassets */; };
 		EB4AC07AAB39C3FED3A0BB77 /* BreathingCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0520C179B5605E5897848454 /* BreathingCircle.swift */; };
 		F254DFAB830B635C94CBEBCF /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50126AC47D9E1AC02F29B660 /* AuthManager.swift */; };
@@ -34,6 +36,7 @@
 /* Begin PBXFileReference section */
 		0520C179B5605E5897848454 /* BreathingCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingCircle.swift; sourceTree = "<group>"; };
 		16E2D0FD8BECC29E7840C55D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		2E5195E2AD8EC2264FA8CE60 /* PillsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillsApp.swift; sourceTree = "<group>"; };
 		3656900B340AF63454BA85B5 /* TTSPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayer.swift; sourceTree = "<group>"; };
 		3A42CDEE18D9263D31C15BCE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
@@ -43,6 +46,7 @@
 		5A56384C2979D44B40B98947 /* Guide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		62B2042186DFECE65DEBC25A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBubble.swift; sourceTree = "<group>"; };
+		68C44CC0225A86B7068A9798 /* OfflineBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineBanner.swift; sourceTree = "<group>"; };
 		6AE2D7C51DB7DCAEF34486D8 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		6EAB68A20DEF0330A7B9EDE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -86,6 +90,14 @@
 				63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */,
 			);
 			path = Chat;
+			sourceTree = "<group>";
+		};
+		4A166174AB07952CFE2BA8CC /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				68C44CC0225A86B7068A9798 /* OfflineBanner.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		5592DA14B68EA43304C7AC08 /* Auth */ = {
@@ -177,6 +189,7 @@
 			isa = PBXGroup;
 			children = (
 				A8A0225A277439908B394745 /* APIClient.swift */,
+				19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -204,6 +217,7 @@
 			children = (
 				5E299F886BA242543D68CA76 /* Breathing */,
 				41232E58BFCB4DA8D3D7ED4B /* Chat */,
+				4A166174AB07952CFE2BA8CC /* Components */,
 				A4CFEAA2F510A4DF794E2607 /* History */,
 				CC35D31C8FA0CC9D3F975757 /* Home */,
 				C67165BD8F5832D310B9589F /* Onboarding */,
@@ -297,6 +311,8 @@
 				537D1CD99CCEC533D193AF85 /* HomeViewModel.swift in Sources */,
 				FD99D87F711B02F7ABE096AF /* MainTabView.swift in Sources */,
 				93948072A769296532DDC062 /* MessageBubble.swift in Sources */,
+				1006BBFD8E6DF34BEF7EECAA /* NetworkMonitor.swift in Sources */,
+				DEC14015C58662C28FD408F6 /* OfflineBanner.swift in Sources */,
 				094FC9B9E1CA9B81A8CC1437 /* PillsApp.swift in Sources */,
 				291C3614A9F4C578447B0C4D /* Session.swift in Sources */,
 				DB0721311707A449A9E807B8 /* SignInView.swift in Sources */,

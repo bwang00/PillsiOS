@@ -64,6 +64,9 @@ struct ChatView: View {
             }
             .navigationTitle("AI 教练")
             .navigationBarTitleDisplayMode(.inline)
+            .offlineBanner {
+                Task { await viewModel?.loadOrCreateConversation() }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -103,6 +106,28 @@ struct ChatView: View {
 
     private var inputBar: some View {
         VStack(spacing: 0) {
+            // Chat error banner
+            if let vm = viewModel, let error = vm.errorMessage {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                    Text(error)
+                        .font(.caption)
+                        .lineLimit(2)
+                    Spacer()
+                    Button {
+                        vm.errorMessage = nil
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.caption2)
+                    }
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(.red.opacity(0.85))
+            }
+
             // Voice error banner
             if let voiceError {
                 Text(voiceError)

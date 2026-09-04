@@ -39,6 +39,9 @@ struct HomeView: View {
             .refreshable {
                 await viewModel?.loadData()
             }
+            .offlineBanner {
+                Task { await viewModel?.loadData() }
+            }
             .task {
                 if viewModel == nil {
                     let vm = HomeViewModel(modelContext: modelContext)
@@ -92,9 +95,21 @@ struct HomeView: View {
                         .frame(maxWidth: .infinity)
                         .padding()
                 } else if let error = vm.errorMessage {
-                    Text(error)
-                        .foregroundStyle(.red)
+                    VStack(spacing: 8) {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                        Button("重试") {
+                            Task { await vm.loadData() }
+                        }
                         .font(.caption)
+                        .fontWeight(.medium)
+                        .buttonStyle(.bordered)
+                        .tint(.green)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
                 } else {
                     ForEach(vm.guides, id: \.slug) { guide in
                         GuideCard(guide: guide) {

@@ -110,24 +110,51 @@ actor APIClient {
     // MARK: - Private helpers
 
     private func get<T: Decodable>(_ path: String) async throws -> T {
-        let request = makeRequest(path: path, method: "GET", body: Optional<String>.none)
-        let (data, response) = try await session.data(for: request)
-        try validateResponse(response, data: data)
-        return try JSONDecoder().decode(T.self, from: data)
+        return try await withRetry {
+            let request = self.makeRequest(path: path, method: "GET", body: Optional<String>.none)
+            let (data, response) = try await self.session.data(for: request)
+            try self.validateResponse(response, data: data)
+            return try JSONDecoder().decode(T.self, from: data)
+        }
     }
 
     private func post<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
-        let request = makeRequest(path: path, method: "POST", body: body)
-        let (data, response) = try await session.data(for: request)
-        try validateResponse(response, data: data)
-        return try JSONDecoder().decode(T.self, from: data)
+        return try await withRetry {
+            let request = self.makeRequest(path: path, method: "POST", body: body)
+            let (data, response) = try await self.session.data(for: request)
+            try self.validateResponse(response, data: data)
+            return try JSONDecoder().decode(T.self, from: data)
+        }
     }
 
     private func patch<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
-        let request = makeRequest(path: path, method: "PATCH", body: body)
-        let (data, response) = try await session.data(for: request)
-        try validateResponse(response, data: data)
-        return try JSONDecoder().decode(T.self, from: data)
+        return try await withRetry {
+            let request = self.makeRequest(path: path, method: "PATCH", body: body)
+            let (data, response) = try await self.session.data(for: request)
+            try self.validateResponse(response, data: data)
+            return try JSONDecoder().decode(T.self, from: data)
+        }
+    }
+
+    /// Retry with exponential backoff for transient errors (max 2 retries).
+    private func withRetry<T>(maxRetries: Int = 2, operation: @escaping () async throws -> T) async throws -> T {
+        var lastError: Error?
+        for attempt in 0...maxRetries {
+            do {
+                return try await operation()
+            } catch let error as APIError where error.isRetryable && attempt < maxRetries {
+                lastError = error
+                let delay = UInt64(pow(2.0, Double(attempt)) * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: delay)
+            } catch let error as URLError where error.isTransient && attempt < maxRetries {
+                lastError = error
+                let delay = UInt64(pow(2.0, Double(attempt)) * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: delay)
+            } catch {
+                throw APIError.from(error)
+            }
+        }
+        throw APIError.from(lastError ?? APIError.unknown)
     }
 
     private func makeRequest<B: Encodable>(path: String, method: String, body: B) -> URLRequest {
@@ -160,13 +187,81 @@ actor APIClient {
 enum APIError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int, body: String)
+    case networkUnavailable
+    case timeout
+    case decodingFailed(String)
+    case unknown
 
     var errorDescription: String? {
         switch self {
         case .invalidResponse:
-            return "Invalid server response"
-        case .httpError(let code, let body):
-            return "HTTP \(code): \(body.prefix(200))"
+            return "服务器响应异常，请稍后重试"
+        case .httpError(let code, _):
+            switch code {
+            case 401: return "登录已过期，请重新登录"
+            case 403: return "没有权限执行此操作"
+            case 404: return "请求的资源不存在"
+            case 429: return "请求太频繁，请稍后再试"
+            case 500...599: return "服务器暂时不可用，请稍后重试"
+            default: return "请求失败 (\(code))"
+            }
+        case .networkUnavailable:
+            return "网络连接不可用，请检查网络设置"
+        case .timeout:
+            return "请求超时，请检查网络后重试"
+        case .decodingFailed(let detail):
+            return "数据解析失败：\(detail)"
+        case .unknown:
+            return "发生未知错误，请稍后重试"
+        }
+    }
+
+    /// Whether this error is transient and the request can be retried.
+    var isRetryable: Bool {
+        switch self {
+        case .networkUnavailable, .timeout:
+            return true
+        case .httpError(let code, _):
+            return code >= 500 || code == 429
+        default:
+            return false
+        }
+    }
+
+    /// Convert any error into a user-friendly APIError.
+    static func from(_ error: Error) -> APIError {
+        if let apiError = error as? APIError {
+            return apiError
+        }
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost:
+                return .networkUnavailable
+            case .timedOut:
+                return .timeout
+            case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+                return .networkUnavailable
+            default:
+                return .unknown
+            }
+        }
+        if error is DecodingError {
+            return .decodingFailed("数据格式不匹配")
+        }
+        return .unknown
+    }
+}
+
+// MARK: - URLError transient check
+
+private extension URLError {
+    var isTransient: Bool {
+        switch code {
+        case .notConnectedToInternet, .networkConnectionLost, .timedOut,
+             .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+            return true
+        default:
+            return false
         }
     }
 }
