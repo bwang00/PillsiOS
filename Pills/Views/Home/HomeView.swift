@@ -129,7 +129,7 @@ struct HomeView: View {
                     }
                 }
                 .padding()
-                .background(.gray.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
+                .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
             }
         }
     }

@@ -37,9 +37,12 @@ struct GuideCard: View {
             }
             .padding()
             .background(.background, in: RoundedRectangle(cornerRadius: 14))
-            .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+            .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
+            .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
+        .scaleEffect(1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: UUID())
     }
 
     private var iconName: String {

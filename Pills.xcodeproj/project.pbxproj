@@ -24,6 +24,7 @@
 		BC787313529F93F4581A2B24 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A904A77463CD7BD3B1394E38 /* ChatView.swift */; };
 		BD866C90FDC892AD542C595C /* GuideCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5D31B2725DDFF434B58109 /* GuideCard.swift */; };
 		DB0721311707A449A9E807B8 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728DC388AA76C4E0470F0BFA /* SignInView.swift */; };
+		EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C7C94431546810939E3E823 /* Assets.xcassets */; };
 		EB4AC07AAB39C3FED3A0BB77 /* BreathingCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0520C179B5605E5897848454 /* BreathingCircle.swift */; };
 		F254DFAB830B635C94CBEBCF /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50126AC47D9E1AC02F29B660 /* AuthManager.swift */; };
 		F7583CC9C466990B4EA176E4 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B2042186DFECE65DEBC25A /* HomeView.swift */; };
@@ -37,6 +38,7 @@
 		3656900B340AF63454BA85B5 /* TTSPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayer.swift; sourceTree = "<group>"; };
 		3A42CDEE18D9263D31C15BCE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		460B88A5659B20DB5C9525CE /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		4C7C94431546810939E3E823 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		50126AC47D9E1AC02F29B660 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		5A56384C2979D44B40B98947 /* Guide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		62B2042186DFECE65DEBC25A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 				8B57877301125AC0EAB326C3 /* Resources */,
 				6950ACC4A80E0FC1A1EC0F4B /* ViewModels */,
 				DDA5E5BAF5DF3444E283EF51 /* Views */,
+				4C7C94431546810939E3E823 /* Assets.xcassets */,
 				6EAB68A20DEF0330A7B9EDE8 /* Info.plist */,
 				F5CCD7C2CE9651970E68A1F9 /* Pills.entitlements */,
 			);
@@ -216,6 +219,7 @@
 			buildConfigurationList = 25B88ECDE836121A333CFDA8 /* Build configuration list for PBXNativeTarget "Pills" */;
 			buildPhases = (
 				9AB392CB0965B542CCA21277 /* Sources */,
+				74CE480C3BC975FBA0EA67F7 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -261,6 +265,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		74CE480C3BC975FBA0EA67F7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		9AB392CB0965B542CCA21277 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -297,6 +312,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
@@ -440,6 +456,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;

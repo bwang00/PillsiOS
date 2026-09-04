@@ -20,17 +20,22 @@
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>AccentColor</string>
+		<key>UIImageName</key>
+		<string>LaunchImage</string>
+	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

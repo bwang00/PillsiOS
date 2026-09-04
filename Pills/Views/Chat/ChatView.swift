@@ -20,6 +20,11 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         if let vm = viewModel {
+                            if vm.messages.isEmpty && !vm.isSending {
+                                ChatWelcomeView()
+                                    .id("welcome")
+                            }
+
                             ForEach(vm.messages) { message in
                                 MessageBubble(message: message)
                                     .id(message.id)
@@ -44,8 +49,14 @@ struct ChatView: View {
                     }
                     .background(.bar)
                 }
-                .onChange(of: viewModel?.messages.count) {
-                    scrollToBottom(proxy: proxy)
+                .onChange(of: viewModel?.messages.count) { oldCount, newCount in
+                    if let newCount, let oldCount, newCount > oldCount {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            scrollToBottom(proxy: proxy)
+                        }
+                    } else {
+                        scrollToBottom(proxy: proxy)
+                    }
                 }
                 .onChange(of: viewModel?.isSending) {
                     scrollToBottom(proxy: proxy)
@@ -73,11 +84,7 @@ struct ChatView: View {
                         username: authManager.currentUser?.username
                     )
                     viewModel = vm
-                    #if DEBUG
-                    vm.populateTestMessages()
-                    #else
                     await vm.loadOrCreateConversation()
-                    #endif
                 }
             }
         }
@@ -159,16 +166,11 @@ struct ChatView: View {
     private var canSend: Bool {
         let text = viewModel?.inputText.trimmingCharacters(in: .whitespaces) ?? ""
         let result = !text.isEmpty && viewModel?.isSending == false
-        NSLog("[ChatTF] canSend: text='%@' isSending=%d result=%d", text, viewModel?.isSending ?? false, result)
         return result
     }
 
     private func sendMessageIfValid() {
-        NSLog("[ChatTF] sendMessageIfValid called")
-        guard canSend else {
-            NSLog("[ChatTF] sendMessageIfValid: canSend is false, returning")
-            return
-        }
+        guard canSend else { return }
         inputFocused = false
         Task { await viewModel?.sendMessage() }
     }
@@ -253,6 +255,63 @@ struct TypingIndicator: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Chat welcome screen
+
+struct ChatWelcomeView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "leaf.circle.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.green.opacity(0.8))
+
+            VStack(spacing: 8) {
+                Text("你好，我是你的 AI 教练")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                Text("可以问我关于呼吸练习、正念冥想、\n放松技巧等任何问题")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            // Suggested prompts
+            VStack(spacing: 8) {
+                SuggestionChip(text: "今天适合做什么练习？", icon: "sun.max.fill")
+                SuggestionChip(text: "帮我缓解焦虑", icon: "heart.fill")
+                SuggestionChip(text: "推荐睡前放松方法", icon: "moon.fill")
+            }
+            .padding(.top, 8)
+
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+        .frame(maxWidth: .infinity)
+    }
+}
+
+struct SuggestionChip: View {
+    let text: String
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(.green)
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -403,7 +462,6 @@ struct ChatTextField: UIViewRepresentable {
         tf.font = .preferredFont(forTextStyle: .body)
         tf.setContentHuggingPriority(.defaultLow, for: .vertical)
         tf.addTarget(context.coordinator, action: #selector(Coordinator.textChanged(_:)), for: .editingChanged)
-        NSLog("[ChatTF] makeUIView delegate=%d", tf.delegate != nil)
         return tf
     }
 
@@ -428,12 +486,10 @@ struct ChatTextField: UIViewRepresentable {
 
         @objc func textChanged(_ textField: UITextField) {
             text = textField.text ?? ""
-            NSLog("[ChatTF] textChanged: %@", text)
         }
 
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             let currentText = textField.text ?? ""
-            NSLog("[ChatTF] textFieldShouldReturn: %@", currentText)
             text = currentText
             onReturn(currentText)
             return false
