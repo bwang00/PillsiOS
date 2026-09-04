@@ -70,7 +70,7 @@ struct HistoryView: View {
                 Text(vm.displayName(for: session.guideSlug))
                     .font(.subheadline)
                     .fontWeight(.medium)
-                Text(vm.formatDate(session.createdAt))
+                Text(vm.formatDate(session.startedAt))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

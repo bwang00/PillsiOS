@@ -53,6 +53,17 @@ struct SignInView: View {
                 ProgressView()
             }
 
+            #if DEBUG
+            Button {
+                authManager.devSignIn()
+            } label: {
+                Text("Dev 跳过登录")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.top, 8)
+            #endif
+
             Spacer()
         }
         .padding(.horizontal, 24)
@@ -61,5 +72,10 @@ struct SignInView: View {
         } message: {
             Text(errorMessage)
         }
+        #if DEBUG
+        .task {
+            authManager.devSignIn()
+        }
+        #endif
     }
 }

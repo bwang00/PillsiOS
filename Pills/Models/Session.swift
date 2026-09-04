@@ -2,30 +2,26 @@ import Foundation
 import SwiftData
 
 /// A practice session record.
-/// Maps to the `sessions` table in the FastAPI backend.
 @Model
 final class Session {
     @Attribute(.unique) var id: String
     var guideSlug: String
-    var createdAt: Date
+    var startedAt: Date
     var completedAt: Date?
     var durationSeconds: Int?
-    var notes: String?
 
     init(
         id: String,
         guideSlug: String,
-        createdAt: Date,
+        startedAt: Date,
         completedAt: Date? = nil,
-        durationSeconds: Int? = nil,
-        notes: String? = nil
+        durationSeconds: Int? = nil
     ) {
         self.id = id
         self.guideSlug = guideSlug
-        self.createdAt = createdAt
+        self.startedAt = startedAt
         self.completedAt = completedAt
         self.durationSeconds = durationSeconds
-        self.notes = notes
     }
 }
 
@@ -33,11 +29,15 @@ final class Session {
 
 struct SessionDTO: Codable {
     let id: String
-    let guide_slug: String?
-    let created_at: String
+    let guide_slug: String
+    let started_at: String
     let completed_at: String?
     let duration_seconds: Int?
-    let notes: String?
+}
+
+struct SessionsListResponse: Codable {
+    let sessions: [SessionDTO]
+    let total: Int
 }
 
 struct CreateSessionRequest: Codable {
@@ -45,30 +45,27 @@ struct CreateSessionRequest: Codable {
 }
 
 struct CompleteSessionRequest: Codable {
-    let completed_at: String
-    let duration_seconds: Int
-    let notes: String?
+    let completed_at: String?
+    let duration_seconds: Int?
 }
 
 // MARK: - DTO → Model
 
 extension Session {
     convenience init(from dto: SessionDTO) {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let created = formatter.date(from: dto.created_at)
-            ?? ISO8601DateFormatter().date(from: dto.created_at)
-            ?? Date()
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fallbackFmt = ISO8601DateFormatter()
+        let started = fmt.date(from: dto.started_at) ?? fallbackFmt.date(from: dto.started_at) ?? Date()
         let completed = dto.completed_at.flatMap {
-            formatter.date(from: $0) ?? ISO8601DateFormatter().date(from: $0)
+            fmt.date(from: $0) ?? fallbackFmt.date(from: $0)
         }
         self.init(
             id: dto.id,
-            guideSlug: dto.guide_slug ?? "",
-            createdAt: created,
+            guideSlug: dto.guide_slug,
+            startedAt: started,
             completedAt: completed,
-            durationSeconds: dto.duration_seconds,
-            notes: dto.notes
+            durationSeconds: dto.duration_seconds
         )
     }
 }

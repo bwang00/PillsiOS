@@ -1,54 +1,55 @@
 import SwiftUI
 import SwiftData
+import Speech
+import AVFoundation
+import UIKit
 
 struct ChatView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var authManager: AuthManager
 
     @State private var viewModel: ChatViewModel?
+    @State private var isRecording = false
+    @State private var speechRecognizer: SpeechRecognizer?
+    @State private var voiceError: String?
+    @FocusState private var inputFocused: Bool
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Messages list
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            if let vm = viewModel {
-                                ForEach(vm.messages) { message in
-                                    MessageBubble(message: message)
-                                        .id(message.id)
-                                }
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        if let vm = viewModel {
+                            ForEach(vm.messages) { message in
+                                MessageBubble(message: message)
+                                    .id(message.id)
+                            }
 
-                                if vm.isSending {
-                                    HStack {
-                                        TypingIndicator()
-                                        Spacer()
-                                    }
-                                    .id("typing")
+                            if vm.isSending {
+                                HStack {
+                                    TypingIndicator()
+                                    Spacer()
                                 }
-                            }
-                        }
-                        .padding()
-                    }
-                    .onChange(of: viewModel?.messages.count) {
-                        if let lastId = viewModel?.messages.last?.id {
-                            withAnimation {
-                                proxy.scrollTo(lastId, anchor: .bottom)
-                            }
-                        }
-                        if viewModel?.isSending == true {
-                            withAnimation {
-                                proxy.scrollTo("typing", anchor: .bottom)
+                                .id("typing")
                             }
                         }
                     }
+                    .padding()
                 }
-
-                Divider()
-
-                // Input bar
-                inputBar
+                .scrollDismissesKeyboard(.interactively)
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    VStack(spacing: 0) {
+                        Divider()
+                        inputBar
+                    }
+                    .background(.bar)
+                }
+                .onChange(of: viewModel?.messages.count) {
+                    scrollToBottom(proxy: proxy)
+                }
+                .onChange(of: viewModel?.isSending) {
+                    scrollToBottom(proxy: proxy)
+                }
             }
             .navigationTitle("AI 教练")
             .navigationBarTitleDisplayMode(.inline)
@@ -72,42 +73,153 @@ struct ChatView: View {
                         username: authManager.currentUser?.username
                     )
                     viewModel = vm
+                    #if DEBUG
+                    vm.populateTestMessages()
+                    #else
                     await vm.loadOrCreateConversation()
+                    #endif
                 }
             }
+        }
+    }
+
+    private func scrollToBottom(proxy: ScrollViewProxy) {
+        guard let vm = viewModel else { return }
+        if vm.isSending {
+            withAnimation { proxy.scrollTo("typing", anchor: .bottom) }
+        } else if let lastId = vm.messages.last?.id {
+            withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
         }
     }
 
     // MARK: - Input bar
 
     private var inputBar: some View {
-        HStack(spacing: 12) {
-            TextField("输入消息...", text: Binding(
-                get: { viewModel?.inputText ?? "" },
-                set: { viewModel?.inputText = $0 }
-            ), axis: .vertical)
-            .lineLimit(1...4)
-            .textFieldStyle(.roundedBorder)
-
-            Button {
-                Task { await viewModel?.sendMessage() }
-            } label: {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.title2)
-                    .foregroundStyle(
-                        (viewModel?.inputText.trimmingCharacters(in: .whitespaces).isEmpty == false
-                         && viewModel?.isSending == false)
-                        ? Color.green : Color.gray.opacity(0.4)
-                    )
+        VStack(spacing: 0) {
+            // Voice error banner
+            if let voiceError {
+                Text(voiceError)
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+                    .background(.orange)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            .disabled(
-                viewModel?.inputText.trimmingCharacters(in: .whitespaces).isEmpty == true
-                || viewModel?.isSending == true
-            )
+
+            HStack(spacing: 8) {
+                // Mic button
+                Button {
+                    toggleVoiceInput()
+                } label: {
+                    ZStack {
+                        if isRecording {
+                            Circle()
+                                .fill(.red.opacity(0.15))
+                                .frame(width: 36, height: 36)
+                        }
+                        Image(systemName: isRecording ? "mic.fill" : "mic")
+                            .font(.title3)
+                            .foregroundStyle(isRecording ? .red : .secondary)
+                    }
+                    .frame(width: 36, height: 36)
+                }
+
+                // Text field (UIKit-backed for reliable return key)
+                ChatTextField(
+                    text: Binding(
+                        get: { viewModel?.inputText ?? "" },
+                        set: { viewModel?.inputText = $0 }
+                    ),
+                    placeholder: "输入消息...",
+                    onReturn: { text in
+                        viewModel?.inputText = text
+                        sendMessageIfValid()
+                    }
+                )
+                .frame(height: 36)
+
+                // Send button
+                Button {
+                    sendMessageIfValid()
+                } label: {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(
+                            canSend ? Color.green : Color.gray.opacity(0.4)
+                        )
+                }
+                .disabled(!canSend)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(.bar)
+    }
+
+    private var canSend: Bool {
+        let text = viewModel?.inputText.trimmingCharacters(in: .whitespaces) ?? ""
+        let result = !text.isEmpty && viewModel?.isSending == false
+        NSLog("[ChatTF] canSend: text='%@' isSending=%d result=%d", text, viewModel?.isSending ?? false, result)
+        return result
+    }
+
+    private func sendMessageIfValid() {
+        NSLog("[ChatTF] sendMessageIfValid called")
+        guard canSend else {
+            NSLog("[ChatTF] sendMessageIfValid: canSend is false, returning")
+            return
+        }
+        inputFocused = false
+        Task { await viewModel?.sendMessage() }
+    }
+
+    // MARK: - Voice input
+
+    private func toggleVoiceInput() {
+        voiceError = nil
+        if isRecording {
+            stopRecording()
+        } else {
+            startRecording()
+        }
+    }
+
+    private func startRecording() {
+        if speechRecognizer == nil {
+            speechRecognizer = SpeechRecognizer(locale: Locale(identifier: "zh-CN"))
+        }
+
+        speechRecognizer?.onTranscript = { text in
+            viewModel?.inputText = text
+        }
+
+        speechRecognizer?.onError = { [self] error in
+            voiceError = error
+            isRecording = false
+            // Auto-dismiss error after 3 seconds
+            Task {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                await MainActor.run { voiceError = nil }
+            }
+        }
+
+        speechRecognizer?.startRecording { error in
+            if let error = error {
+                voiceError = error.localizedDescription
+                isRecording = false
+                Task {
+                    try? await Task.sleep(nanoseconds: 3_000_000_000)
+                    await MainActor.run { voiceError = nil }
+                }
+            } else {
+                isRecording = true
+            }
+        }
+    }
+
+    private func stopRecording() {
+        speechRecognizer?.stopRecording()
+        isRecording = false
     }
 }
 
@@ -140,6 +252,191 @@ struct TypingIndicator: View {
                     }
                 }
             }
+        }
+    }
+}
+
+// MARK: - Speech Recognizer
+
+final class SpeechRecognizer: NSObject {
+    var transcript = ""
+    var onTranscript: ((String) -> Void)?
+    var onError: ((String) -> Void)?
+
+    private let speechRecognizer: SFSpeechRecognizer?
+    private let audioEngine = AVAudioEngine()
+    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+    private var recognitionTask: SFSpeechRecognitionTask?
+
+    init(locale: Locale = .current) {
+        self.speechRecognizer = SFSpeechRecognizer(locale: locale)
+        super.init()
+    }
+
+    func startRecording(completion: @escaping (Error?) -> Void) {
+        // Cancel any ongoing task
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        guard let speechRecognizer, speechRecognizer.isAvailable else {
+            let err = NSError(domain: "SpeechRecognizer", code: -1, userInfo: [
+                NSLocalizedDescriptionKey: "语音识别不可用，请检查设备是否支持中文语音识别"
+            ])
+            completion(err)
+            return
+        }
+
+        // Request authorization
+        SFSpeechRecognizer.requestAuthorization { [weak self] status in
+            guard status == .authorized else {
+                let msg: String
+                switch status {
+                case .denied: msg = "语音识别权限被拒绝，请在设置中开启"
+                case .restricted: msg = "语音识别受限"
+                case .notDetermined: msg = "语音识别权限未确定"
+                default: msg = "语音识别未授权"
+                }
+                completion(NSError(domain: "SpeechRecognizer", code: -2, userInfo: [
+                    NSLocalizedDescriptionKey: msg
+                ]))
+                return
+            }
+
+            Task { @MainActor in
+                guard let self else { return }
+                do {
+                    try self.startAudioSession()
+                    completion(nil)
+                } catch {
+                    completion(error)
+                }
+            }
+        }
+    }
+
+    @MainActor
+    private func startAudioSession() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+        request.addsPunctuation = true
+
+        // Prefer on-device when available
+        if speechRecognizer?.supportsOnDeviceRecognition == true {
+            request.requiresOnDeviceRecognition = true
+        }
+
+        recognitionRequest = request
+
+        let inputNode = audioEngine.inputNode
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
+
+        // Guard against zero-sample-rate format (simulator edge case)
+        guard recordingFormat.sampleRate > 0 else {
+            throw NSError(domain: "SpeechRecognizer", code: -3, userInfo: [
+                NSLocalizedDescriptionKey: "无法获取麦克风音频格式，模拟器可能不支持语音输入"
+            ])
+        }
+
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+            request.append(buffer)
+        }
+
+        audioEngine.prepare()
+        try audioEngine.start()
+
+        recognitionTask = speechRecognizer?.recognitionTask(with: request) { [weak self] result, error in
+            guard let self else { return }
+
+            if let result {
+                let text = result.bestTranscription.formattedString
+                Task { @MainActor in
+                    self.transcript = text
+                    self.onTranscript?(text)
+                }
+            }
+
+            if let error {
+                Task { @MainActor in
+                    self.onError?(error.localizedDescription)
+                }
+                self.cleanupAudioEngine()
+            } else if result?.isFinal == true {
+                self.cleanupAudioEngine()
+            }
+        }
+    }
+
+    func stopRecording() {
+        audioEngine.stop()
+        cleanupAudioEngine()
+        recognitionRequest?.endAudio()
+        recognitionTask?.cancel()
+        recognitionTask = nil
+    }
+
+    private func cleanupAudioEngine() {
+        if audioEngine.isRunning {
+            audioEngine.stop()
+        }
+        audioEngine.inputNode.removeTap(onBus: 0)
+        recognitionRequest = nil
+    }
+}
+
+// MARK: - UIKit TextField wrapper for reliable return key
+
+struct ChatTextField: UIViewRepresentable {
+    @Binding var text: String
+    let placeholder: String
+    let onReturn: (String) -> Void
+
+    func makeUIView(context: Context) -> UITextField {
+        let tf = UITextField()
+        tf.delegate = context.coordinator
+        tf.placeholder = placeholder
+        tf.returnKeyType = .send
+        tf.borderStyle = .roundedRect
+        tf.font = .preferredFont(forTextStyle: .body)
+        tf.setContentHuggingPriority(.defaultLow, for: .vertical)
+        tf.addTarget(context.coordinator, action: #selector(Coordinator.textChanged(_:)), for: .editingChanged)
+        NSLog("[ChatTF] makeUIView delegate=%d", tf.delegate != nil)
+        return tf
+    }
+
+    func updateUIView(_ tf: UITextField, context: Context) {
+        if tf.text != text {
+            tf.text = text
+        }
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text, onReturn: onReturn)
+    }
+
+    class Coordinator: NSObject, UITextFieldDelegate {
+        @Binding var text: String
+        let onReturn: (String) -> Void
+
+        init(text: Binding<String>, onReturn: @escaping (String) -> Void) {
+            _text = text
+            self.onReturn = onReturn
+        }
+
+        @objc func textChanged(_ textField: UITextField) {
+            text = textField.text ?? ""
+            NSLog("[ChatTF] textChanged: %@", text)
+        }
+
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            let currentText = textField.text ?? ""
+            NSLog("[ChatTF] textFieldShouldReturn: %@", currentText)
+            text = currentText
+            onReturn(currentText)
+            return false
         }
     }
 }

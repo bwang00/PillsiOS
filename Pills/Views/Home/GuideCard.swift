@@ -19,7 +19,7 @@ struct GuideCard: View {
 
                 // Text
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(guide.displayName)
+                    Text(guide.title)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                     Text(guide.summary)
@@ -63,8 +63,9 @@ struct GuideCard: View {
     }
 
     private var durationText: String {
-        let minutes = guide.durationSeconds / 60
-        let seconds = guide.durationSeconds % 60
+        let totalSeconds = guide.estimatedDuration
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
         if minutes > 0 && seconds == 0 {
             return "\(minutes)分钟"
         } else if minutes > 0 {

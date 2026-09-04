@@ -49,7 +49,7 @@ final class BreathingViewModel {
         // Calculate total cycles from duration
         if !phases.isEmpty {
             let cycleDuration = phases.reduce(0.0) { $0 + $1.duration }
-            totalCycles = max(1, Int(Double(guide.durationSeconds) / cycleDuration))
+            totalCycles = max(1, Int(Double(guide.estimatedDuration) / cycleDuration))
         }
     }
 
@@ -115,22 +115,21 @@ final class BreathingViewModel {
     }
 
     private func runPhase(_ phaseConfig: GuideConfig.BreathPhase) async {
-        // Map phase name to enum
         switch phaseConfig.name {
-        case "inhale":
+        case "吸气", "inhale":
             phase = .inhale
             phaseLabel = "吸气"
             await ttsPlayer.speak("吸气")
-        case "hold":
+        case "闭气", "hold":
             phase = .hold
             phaseLabel = "闭气"
             await ttsPlayer.speak("闭气")
-        case "exhale":
+        case "呼气", "exhale":
             phase = .exhale
             phaseLabel = "呼气"
             await ttsPlayer.speak("呼气")
         default:
-            phaseLabel = phaseConfig.label
+            phaseLabel = phaseConfig.name
         }
 
         // Haptic feedback

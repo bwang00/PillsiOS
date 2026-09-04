@@ -2,8 +2,6 @@ import Foundation
 import SwiftData
 import Observation
 
-/// ViewModel for the Home screen.
-/// Fetches breathing guides and recent sessions from the API, caches locally.
 @MainActor
 @Observable
 final class HomeViewModel {
@@ -23,15 +21,12 @@ final class HomeViewModel {
         errorMessage = nil
 
         do {
-            // Fetch guides from server
             let guideDTOs = try await APIClient.shared.fetchGuides(category: "breathing")
             syncGuides(dtos: guideDTOs)
 
-            // Fetch recent sessions
             let sessionDTOs = try await APIClient.shared.fetchSessions(limit: 5)
             syncSessions(dtos: sessionDTOs)
         } catch {
-            // Fall back to local cache
             loadFromCache()
             if guides.isEmpty {
                 errorMessage = "无法加载数据：\(error.localizedDescription)"
@@ -46,28 +41,24 @@ final class HomeViewModel {
         guides = (try? modelContext.fetch(guideDescriptor)) ?? []
 
         var sessionDescriptor = FetchDescriptor<Session>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
         )
         sessionDescriptor.fetchLimit = 5
         recentSessions = (try? modelContext.fetch(sessionDescriptor)) ?? []
     }
 
     private func syncGuides(dtos: [GuideDTO]) {
-        // Upsert guides into SwiftData
         for dto in dtos {
             let existing = try? modelContext.fetch(
                 FetchDescriptor<Guide>(predicate: #Predicate { $0.slug == dto.slug })
             ).first
             if let existing {
-                existing.displayName = dto.display_name
+                existing.title = dto.title
                 existing.summary = dto.description
-                existing.durationSeconds = dto.duration_seconds
                 existing.sortOrder = dto.sort_order
-                existing.isActive = dto.is_active
-                existing.configJSON = {
-                    let data = (try? JSONEncoder().encode(dto.config)) ?? Data()
-                    return String(data: data, encoding: .utf8) ?? "{}"
-                }()
+                existing.isActive = dto.active
+                let data = (try? JSONEncoder().encode(dto.config)) ?? Data()
+                existing.configJSON = String(data: data, encoding: .utf8) ?? "{}"
             } else {
                 modelContext.insert(Guide(from: dto))
             }
@@ -93,13 +84,11 @@ final class HomeViewModel {
         try? modelContext.save()
 
         var descriptor = FetchDescriptor<Session>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
         )
         descriptor.fetchLimit = 5
         recentSessions = (try? modelContext.fetch(descriptor)) ?? []
     }
-
-    // MARK: - Computed properties
 
     var totalSessions: Int {
         let descriptor = FetchDescriptor<Session>()
@@ -107,18 +96,29 @@ final class HomeViewModel {
     }
 
     var streakDays: Int {
-        // Count consecutive days with at least one session
-        let descriptor = FetchDescriptor<Session>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        let descriptor = FetchDescriptor<Session>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)])
         let all = (try? modelContext.fetch(descriptor)) ?? []
         let calendar = Calendar.current
         var streak = 0
         var checkDate = calendar.startOfDay(for: Date())
-
-        let sessionDates = Set(all.map { calendar.startOfDay(for: $0.createdAt) })
+        let sessionDates = Set(all.map { calendar.startOfDay(for: $0.startedAt) })
         while sessionDates.contains(checkDate) {
             streak += 1
             checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
         }
         return streak
+    }
+
+    func displayName(for slug: String) -> String {
+        for guide in guides where guide.slug == slug {
+            return guide.title
+        }
+        return slug.replacingOccurrences(of: "-", with: " ").capitalized
+    }
+
+    func formatDuration(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let secs = seconds % 60
+        return minutes > 0 ? "\(minutes)分\(secs)秒" : "\(secs)秒"
     }
 }

@@ -2,7 +2,6 @@ import Foundation
 import SwiftData
 
 /// A conversation with the AI coach.
-/// Maps to the `conversations` table in the FastAPI backend.
 @Model
 final class Conversation {
     @Attribute(.unique) var id: String
@@ -30,7 +29,7 @@ final class Conversation {
 @Model
 final class ChatMessage {
     @Attribute(.unique) var id: String
-    var role: String // "user" or "assistant"
+    var role: String
     var content: String
     var createdAt: Date
     var conversation: Conversation?
@@ -50,13 +49,16 @@ struct ConversationDTO: Codable {
     let created_at: String
     let updated_at: String
     let username: String?
+    let message_count: Int?
+    let first_message: String?
 }
 
 struct MessageDTO: Codable {
-    let id: String?
+    let id: String
+    let conversation_id: String
     let role: String
     let content: String
-    let created_at: String?
+    let created_at: String
 }
 
 struct ConversationDetailDTO: Codable {
@@ -69,7 +71,7 @@ struct ConversationDetailDTO: Codable {
 
 struct AIChatRequest: Codable {
     let message: String
-    let conversation_history: [AIChatHistoryEntry]
+    let history: [AIChatHistoryEntry]
     let username: String?
 }
 
@@ -79,13 +81,18 @@ struct AIChatHistoryEntry: Codable {
 }
 
 struct AIChatResponse: Codable {
-    let response: String
+    let reply: String
 }
 
-struct SendMessageRequest: Codable {
-    let conversation_id: String
+struct SendMessageBody: Codable {
     let role: String
     let content: String
+}
+
+struct TTSResponse: Codable {
+    let audio_data: String  // base64-encoded MP3
+    let format: String
+    let size: Int
 }
 
 // MARK: - DTO → Model
@@ -94,27 +101,22 @@ extension Conversation {
     convenience init(from dto: ConversationDTO) {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        let created = fmt.date(from: dto.created_at) ?? ISO8601DateFormatter().date(from: dto.created_at) ?? Date()
-        let updated = fmt.date(from: dto.updated_at) ?? ISO8601DateFormatter().date(from: dto.updated_at) ?? Date()
+        let fb = ISO8601DateFormatter()
+        let created = fmt.date(from: dto.created_at) ?? fb.date(from: dto.created_at) ?? Date()
+        let updated = fmt.date(from: dto.updated_at) ?? fb.date(from: dto.updated_at) ?? Date()
         self.init(id: dto.id, createdAt: created, updatedAt: updated, username: dto.username)
     }
 
     convenience init(from detail: ConversationDetailDTO) {
         let fmt = ISO8601DateFormatter()
         fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fb = ISO8601DateFormatter()
         let created = fmt.date(from: detail.created_at) ?? Date()
         let updated = fmt.date(from: detail.updated_at) ?? Date()
         self.init(id: detail.id, createdAt: created, updatedAt: updated, username: detail.username)
         self.messages = detail.messages.map { dto in
-            let msgDate = dto.created_at.flatMap {
-                fmt.date(from: $0) ?? ISO8601DateFormatter().date(from: $0)
-            } ?? Date()
-            return ChatMessage(
-                id: dto.id ?? UUID().uuidString,
-                role: dto.role,
-                content: dto.content,
-                createdAt: msgDate
-            )
+            let msgDate = fmt.date(from: dto.created_at) ?? fb.date(from: dto.created_at) ?? Date()
+            return ChatMessage(id: dto.id, role: dto.role, content: dto.content, createdAt: msgDate)
         }
     }
 }

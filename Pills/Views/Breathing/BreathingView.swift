@@ -42,7 +42,7 @@ struct BreathingView: View {
             controlButton
                 .padding(.bottom, 40)
         }
-        .navigationTitle(guide.displayName)
+        .navigationTitle(guide.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

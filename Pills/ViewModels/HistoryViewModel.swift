@@ -79,7 +79,7 @@ final class HistoryViewModel {
 
     private func loadFromCache() {
         let descriptor = FetchDescriptor<Session>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
         )
         sessions = (try? modelContext.fetch(descriptor)) ?? []
     }
@@ -105,7 +105,7 @@ final class HistoryViewModel {
     func displayName(for slug: String) -> String {
         let descriptor = FetchDescriptor<Guide>(predicate: #Predicate { $0.slug == slug })
         if let guide = try? modelContext.fetch(descriptor).first {
-            return guide.displayName
+            return guide.title
         }
         // Fallback: humanize slug
         return slug

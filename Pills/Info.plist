@@ -25,6 +25,10 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

@@ -117,7 +117,7 @@ struct HomeView: View {
                         Text(vm.displayName(for: session.guideSlug))
                             .font(.subheadline)
                             .fontWeight(.medium)
-                        Text(session.createdAt, style: .relative)
+                        Text(session.startedAt, style: .relative)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -135,21 +135,6 @@ struct HomeView: View {
     }
 
     private func formatDuration(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let secs = seconds % 60
-        return minutes > 0 ? "\(minutes)分\(secs)秒" : "\(secs)秒"
-    }
-}
-
-extension HomeViewModel {
-    func displayName(for slug: String) -> String {
-        for guide in guides where guide.slug == slug {
-            return guide.displayName
-        }
-        return slug.replacingOccurrences(of: "-", with: " ").capitalized
-    }
-
-    func formatDuration(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let secs = seconds % 60
         return minutes > 0 ? "\(minutes)分\(secs)秒" : "\(secs)秒"

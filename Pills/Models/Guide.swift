@@ -5,31 +5,31 @@ import SwiftData
 /// Maps to the `guides` table in the FastAPI backend.
 @Model
 final class Guide {
+    @Attribute(.unique) var id: String
     @Attribute(.unique) var slug: String
     var category: String
-    var displayName: String
+    var title: String
     var summary: String
-    var durationSeconds: Int
     var sortOrder: Int
     var isActive: Bool
     /// JSON-encoded config object (phase timings, steps, etc.)
     var configJSON: String
 
     init(
+        id: String,
         slug: String,
         category: String,
-        displayName: String,
+        title: String,
         summary: String,
-        durationSeconds: Int,
         sortOrder: Int,
         isActive: Bool,
         configJSON: String
     ) {
+        self.id = id
         self.slug = slug
         self.category = category
-        self.displayName = displayName
+        self.title = title
         self.summary = summary
-        self.durationSeconds = durationSeconds
         self.sortOrder = sortOrder
         self.isActive = isActive
         self.configJSON = configJSON
@@ -39,13 +39,13 @@ final class Guide {
 // MARK: - API DTO
 
 struct GuideDTO: Codable {
+    let id: String
     let slug: String
-    let category: String
-    let display_name: String
+    let title: String
     let description: String
-    let duration_seconds: Int
+    let category: String
     let sort_order: Int
-    let is_active: Bool
+    let active: Bool
     let config: GuideConfig
 }
 
@@ -54,15 +54,19 @@ struct GuideConfig: Codable {
     let steps: [GuideStep]?
 
     struct BreathPhase: Codable {
-        let name: String
-        let label: String
+        let name: String     // Chinese: "吸气", "闭气", "呼气"
         let duration: Double
     }
 
     struct GuideStep: Codable {
-        let name: String
-        let label: String
-        let duration: Double
+        let sense: String?
+        let count: Int?
+        let prompt: String?
+        let body_part: String?
+        let tense_duration: Double?
+        let relax_duration: Double?
+        let tense_prompt: String?
+        let relax_prompt: String?
     }
 }
 
@@ -73,13 +77,13 @@ extension Guide {
         let configData = (try? JSONEncoder().encode(dto.config)) ?? Data()
         let configString = String(data: configData, encoding: .utf8) ?? "{}"
         self.init(
+            id: dto.id,
             slug: dto.slug,
             category: dto.category,
-            displayName: dto.display_name,
+            title: dto.title,
             summary: dto.description,
-            durationSeconds: dto.duration_seconds,
             sortOrder: dto.sort_order,
-            isActive: dto.is_active,
+            isActive: dto.active,
             configJSON: configString
         )
     }
@@ -89,5 +93,10 @@ extension Guide {
               let config = try? JSONDecoder().decode(GuideConfig.self, from: data)
         else { return [] }
         return config.phases ?? []
+    }
+
+    /// Estimated total duration in seconds from phase config
+    var estimatedDuration: Int {
+        Int(phases.reduce(0.0) { $0 + $1.duration })
     }
 }

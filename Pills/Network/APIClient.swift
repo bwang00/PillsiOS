@@ -45,18 +45,18 @@ actor APIClient {
         return try await post("/api/sessions", body: body)
     }
 
-    func completeSession(id: String, durationSeconds: Int, notes: String? = nil) async throws -> SessionDTO {
+    func completeSession(id: String, durationSeconds: Int) async throws -> SessionDTO {
         let now = ISO8601DateFormatter().string(from: Date())
         let body = CompleteSessionRequest(
             completed_at: now,
-            duration_seconds: durationSeconds,
-            notes: notes
+            duration_seconds: durationSeconds
         )
         return try await patch("/api/sessions/\(id)", body: body)
     }
 
     func fetchSessions(limit: Int = 20, offset: Int = 0) async throws -> [SessionDTO] {
-        return try await get("/api/sessions?limit=\(limit)&offset=\(offset)")
+        let resp: SessionsListResponse = try await get("/api/sessions?limit=\(limit)&offset=\(offset)")
+        return resp.sessions
     }
 
     // MARK: - TTS
@@ -66,7 +66,11 @@ actor APIClient {
         let request = makeRequest(path: "/api/tts", method: "POST", body: body)
         let (data, response) = try await session.data(for: request)
         try validateResponse(response, data: data)
-        return data
+        let ttsResponse = try JSONDecoder().decode(TTSResponse.self, from: data)
+        guard let audioData = Data(base64Encoded: ttsResponse.audio_data) else {
+            throw APIError.invalidResponse
+        }
+        return audioData
     }
 
     // MARK: - Conversations
@@ -78,12 +82,8 @@ actor APIClient {
     }
 
     func sendMessage(conversationId: String, role: String, content: String) async throws -> MessageDTO {
-        let body = SendMessageRequest(
-            conversation_id: conversationId,
-            role: role,
-            content: content
-        )
-        return try await post("/api/conversations/messages", body: body)
+        let body = SendMessageBody(role: role, content: content)
+        return try await post("/api/conversations/messages?conversation_id=\(conversationId)", body: body)
     }
 
     func fetchConversationDetail(_ id: String) async throws -> ConversationDetailDTO {
@@ -101,7 +101,7 @@ actor APIClient {
     func sendAIChat(message: String, history: [AIChatHistoryEntry], username: String?) async throws -> AIChatResponse {
         let body = AIChatRequest(
             message: message,
-            conversation_history: history,
+            history: history,
             username: username
         )
         return try await post("/api/ai-chat", body: body)
@@ -131,7 +131,7 @@ actor APIClient {
     }
 
     private func makeRequest<B: Encodable>(path: String, method: String, body: B) -> URLRequest {
-        let url = baseURL.appendingPathComponent(path)
+        let url = URL(string: path, relativeTo: baseURL)!
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

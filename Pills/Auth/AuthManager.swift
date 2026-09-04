@@ -79,6 +79,19 @@ final class AuthManager: NSObject, ObservableObject {
         return try? context.fetch(descriptor).first
     }
 
+    #if DEBUG
+    func devSignIn() {
+        let user = User(
+            id: UUID().uuidString,
+            username: "dev_user",
+            appleUserIdentifier: nil
+        )
+        modelContext?.insert(user)
+        try? modelContext?.save()
+        currentUser = user
+    }
+    #endif
+
     func signOut() {
         if let user = currentUser {
             modelContext?.delete(user)
