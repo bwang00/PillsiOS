@@ -54,10 +54,10 @@ final class ChatViewModel {
             conversationId = detail.id
             messages = detail.messages.map {
                 ChatMessageItem(
-                    id: $0.id ?? UUID().uuidString,
+                    id: $0.id,
                     role: $0.role,
                     content: $0.content,
-                    timestamp: ISO8601DateFormatter().date(from: $0.created_at ?? "") ?? Date()
+                    timestamp: ISO8601DateFormatter().date(from: $0.created_at) ?? Date()
                 )
             }
         } catch {

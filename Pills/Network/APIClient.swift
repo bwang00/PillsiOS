@@ -165,8 +165,8 @@ actor APIClient {
         if let token = authToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        if let encodable = body as? Encodable, !(body is Optional<String>) {
-            request.httpBody = try? JSONEncoder().encode(AnyEncodable(encodable))
+        if !(body is Optional<String>) {
+            request.httpBody = try? JSONEncoder().encode(AnyEncodable(body))
         }
         return request
     }

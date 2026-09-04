@@ -53,12 +53,18 @@ final class TTSPlayer: ObservableObject {
 
     // MARK: - Delegate proxy
 
-    private let delegateProxy = AudioDelegateProxy()
+    private lazy var delegateProxy = AudioDelegateProxy(player: self)
 
     private class AudioDelegateProxy: NSObject, AVAudioPlayerDelegate {
+        weak var player: TTSPlayer?
+
+        init(player: TTSPlayer) {
+            self.player = player
+        }
+
         func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
             Task { @MainActor in
-                // Will be picked up by the TTSPlayer's @Published isPlaying
+                self.player?.isPlaying = false
             }
         }
     }

@@ -9,7 +9,11 @@ struct HistoryView: View {
         NavigationStack {
             List {
                 if let vm = viewModel {
-                    if vm.sessions.isEmpty && !vm.isLoading {
+                    if let error = vm.errorMessage, vm.sessions.isEmpty {
+                        errorState(error: error) {
+                            Task { await vm.refresh() }
+                        }
+                    } else if vm.sessions.isEmpty && !vm.isLoading {
                         emptyState
                     } else {
                         ForEach(vm.sessions, id: \.id) { session in
@@ -50,6 +54,23 @@ struct HistoryView: View {
     }
 
     // MARK: - Subviews
+
+    private func errorState(error: String, retry: @escaping () -> Void) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            Text(error)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            Button("重试", action: retry)
+                .buttonStyle(.bordered)
+                .tint(.green)
+        }
+        .padding()
+        .listRowSeparator(.hidden)
+    }
 
     private var emptyState: some View {
         VStack(spacing: 12) {
