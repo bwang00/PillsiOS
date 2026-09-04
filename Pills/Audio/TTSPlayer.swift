@@ -1,14 +1,23 @@
 import Foundation
 import AVFoundation
 
+/// Protocol for the TTS API method. Enables testability.
+protocol TTSAPIProtocol: Sendable {
+    func synthesizeSpeech(_ text: String) async throws -> Data
+}
+
+extension APIClient: TTSAPIProtocol {}
+
 /// Plays TTS audio returned from the server-side edge-tts endpoint.
 @MainActor
 final class TTSPlayer: ObservableObject {
     @Published var isPlaying = false
 
     private var player: AVAudioPlayer?
+    private let api: TTSAPIProtocol
 
-    init() {
+    init(api: TTSAPIProtocol = APIClient.shared) {
+        self.api = api
         configureAudioSession()
     }
 
@@ -25,7 +34,7 @@ final class TTSPlayer: ObservableObject {
     /// Fetches TTS audio from the server and plays it immediately.
     func speak(_ text: String) async {
         do {
-            let audioData = try await APIClient.shared.synthesizeSpeech(text)
+            let audioData = try await api.synthesizeSpeech(text)
             play(data: audioData)
         } catch {
             print("⚠️ TTS fetch failed: \(error)")
