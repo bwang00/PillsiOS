@@ -13,6 +13,10 @@ struct ChatView: View {
     @State private var speechRecognizer: SpeechRecognizer?
     @State private var voiceError: String?
     @FocusState private var inputFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// Scales the input-bar control height with the user's Dynamic Type setting
+    /// so large text sizes are not clipped by a fixed-height bar.
+    @ScaledMetric(relativeTo: .body) private var inputControlHeight: CGFloat = 36
 
     var body: some View {
         NavigationStack {
@@ -50,7 +54,7 @@ struct ChatView: View {
                     .background(.bar)
                 }
                 .onChange(of: viewModel?.messages.count) { oldCount, newCount in
-                    if let newCount, let oldCount, newCount > oldCount {
+                    if let newCount, let oldCount, newCount > oldCount, !reduceMotion {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                             scrollToBottom(proxy: proxy)
                         }
@@ -78,14 +82,12 @@ struct ChatView: View {
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
+                    .accessibilityLabel("更多操作")
                 }
             }
             .task {
                 if viewModel == nil {
-                    let vm = ChatViewModel(
-                        modelContext: modelContext,
-                        username: authManager.currentUser?.username
-                    )
+                    let vm = ChatViewModel(modelContext: modelContext)
                     viewModel = vm
                     await vm.loadOrCreateConversation()
                 }
@@ -95,10 +97,12 @@ struct ChatView: View {
 
     private func scrollToBottom(proxy: ScrollViewProxy) {
         guard let vm = viewModel else { return }
-        if vm.isSending {
-            withAnimation { proxy.scrollTo("typing", anchor: .bottom) }
-        } else if let lastId = vm.messages.last?.id {
-            withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
+        let targetID: Hashable? = vm.isSending ? "typing" : vm.messages.last?.id
+        guard let targetID else { return }
+        if reduceMotion {
+            proxy.scrollTo(targetID, anchor: .bottom)
+        } else {
+            withAnimation { proxy.scrollTo(targetID, anchor: .bottom) }
         }
     }
 
@@ -111,6 +115,7 @@ struct ChatView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption)
+                        .accessibilityHidden(true)
                     Text(error)
                         .font(.caption)
                         .lineLimit(2)
@@ -120,7 +125,10 @@ struct ChatView: View {
                     } label: {
                         Image(systemName: "xmark")
                             .font(.caption2)
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
                     }
+                    .accessibilityLabel("关闭错误提示")
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 12)
@@ -136,7 +144,7 @@ struct ChatView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 6)
                     .background(.orange)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
             }
 
             HStack(spacing: 8) {
@@ -154,8 +162,10 @@ struct ChatView: View {
                             .font(.title3)
                             .foregroundStyle(isRecording ? .red : .secondary)
                     }
-                    .frame(width: 36, height: 36)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
                 }
+                .accessibilityLabel(isRecording ? "停止语音输入" : "语音输入")
 
                 // Text field (UIKit-backed for reliable return key)
                 ChatTextField(
@@ -169,7 +179,8 @@ struct ChatView: View {
                         sendMessageIfValid()
                     }
                 )
-                .frame(height: 36)
+                .frame(minHeight: max(44, inputControlHeight))
+                .accessibilityLabel("消息输入框")
 
                 // Send button
                 Button {
@@ -180,8 +191,11 @@ struct ChatView: View {
                         .foregroundStyle(
                             canSend ? Color.green : Color.gray.opacity(0.4)
                         )
+                        .frame(minWidth: 44, minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .disabled(!canSend)
+                .accessibilityLabel("发送")
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -253,6 +267,7 @@ struct ChatView: View {
 // MARK: - Typing indicator
 
 struct TypingIndicator: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var dotOpacity: [Double] = [0.3, 0.3, 0.3]
 
     var body: some View {
@@ -267,7 +282,11 @@ struct TypingIndicator: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(.gray.opacity(0.1), in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("AI 正在输入")
         .task {
+            // Non-essential decorative animation: skip entirely under Reduce Motion.
+            guard !reduceMotion else { return }
             while !Task.isCancelled {
                 for i in 0..<3 {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -295,6 +314,7 @@ struct ChatWelcomeView: View {
                 .scaledToFit()
                 .frame(width: 80, height: 80)
                 .clipShape(Circle())
+                .accessibilityHidden(true)
 
             VStack(spacing: 8) {
                 Text("你好，我是你的 AI 教练")
@@ -331,6 +351,7 @@ struct SuggestionChip: View {
             Image(systemName: icon)
                 .font(.caption)
                 .foregroundStyle(.green)
+                .accessibilityHidden(true)
             Text(text)
                 .font(.subheadline)
                 .foregroundStyle(.primary)
@@ -339,6 +360,7 @@ struct SuggestionChip: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .combine)
     }
 }
 

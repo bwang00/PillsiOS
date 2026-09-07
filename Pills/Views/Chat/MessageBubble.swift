@@ -3,7 +3,22 @@ import SwiftUI
 struct MessageBubble: View {
     let message: ChatViewModel.ChatMessageItem
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private var isUser: Bool { message.role == "user" }
+
+    private static let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
+    private var accessibilityMessageLabel: String {
+        let speaker = isUser ? "我" : "AI 教练"
+        let time = Self.timeFormatter.string(from: message.timestamp)
+        return "\(speaker): \(message.content)，\(time)"
+    }
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
@@ -27,13 +42,18 @@ struct MessageBubble: View {
                     .foregroundStyle(.tertiary)
                     .padding(.horizontal, 4)
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(accessibilityMessageLabel)
 
             if !isUser { Spacer(minLength: 48) }
         }
-        .transition(.asymmetric(
-            insertion: .move(edge: .bottom).combined(with: .opacity),
-            removal: .opacity
-        ))
+        .transition(reduceMotion
+            ? .opacity
+            : .asymmetric(
+                insertion: .move(edge: .bottom).combined(with: .opacity),
+                removal: .opacity
+            )
+        )
     }
 }
 
