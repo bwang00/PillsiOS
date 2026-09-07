@@ -11,6 +11,7 @@ private actor MockBreathingSessionAPI: BreathingSessionAPI {
     struct Snapshot: Sendable {
         let createSessionCallCount: Int
         let completions: [Completion]
+        let createdIdempotencyKeys: [String?]
     }
 
     private struct PendingCreation {
@@ -26,19 +27,34 @@ private actor MockBreathingSessionAPI: BreathingSessionAPI {
 
     private var shouldSuspendCreation = false
     private var shouldSuspendCompletion = false
+    private var creationFailure: Error?
+    private var completionFailure: Error?
     private var createSessionCallCount = 0
+    private var createdIdempotencyKeys: [String?] = []
     private var completions: [Completion] = []
     private var pendingCreations: [PendingCreation] = []
     private var pendingCompletions: [PendingCompletion] = []
 
-    func configure(suspendCreation: Bool = false, suspendCompletion: Bool = false) {
+    func configure(
+        suspendCreation: Bool = false,
+        suspendCompletion: Bool = false,
+        creationFailure: Error? = nil,
+        completionFailure: Error? = nil
+    ) {
         shouldSuspendCreation = suspendCreation
         shouldSuspendCompletion = suspendCompletion
+        self.creationFailure = creationFailure
+        self.completionFailure = completionFailure
     }
 
-    func createSession(guideSlug: String) async throws -> SessionDTO {
+    func createSession(guideSlug: String, idempotencyKey: String?) async throws -> SessionDTO {
         createSessionCallCount += 1
+        createdIdempotencyKeys.append(idempotencyKey)
         let sessionID = "session-\(createSessionCallCount)"
+
+        if let creationFailure {
+            throw creationFailure
+        }
 
         if shouldSuspendCreation {
             return try await withCheckedThrowingContinuation { continuation in
@@ -57,6 +73,10 @@ private actor MockBreathingSessionAPI: BreathingSessionAPI {
     func completeSession(id: String, durationSeconds: Int) async throws -> SessionDTO {
         let completion = Completion(sessionID: id, durationSeconds: durationSeconds)
         completions.append(completion)
+
+        if let completionFailure {
+            throw completionFailure
+        }
 
         if shouldSuspendCompletion {
             return try await withCheckedThrowingContinuation { continuation in
@@ -89,6 +109,8 @@ private actor MockBreathingSessionAPI: BreathingSessionAPI {
     func shutdown() {
         shouldSuspendCreation = false
         shouldSuspendCompletion = false
+        creationFailure = nil
+        completionFailure = nil
         resumeAllCreations()
         resumeAllCompletions()
     }
@@ -96,7 +118,8 @@ private actor MockBreathingSessionAPI: BreathingSessionAPI {
     func snapshot() -> Snapshot {
         Snapshot(
             createSessionCallCount: createSessionCallCount,
-            completions: completions
+            completions: completions,
+            createdIdempotencyKeys: createdIdempotencyKeys
         )
     }
 
@@ -213,6 +236,7 @@ final class BreathingViewModelTests: XCTestCase {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try! ModelContainer(
             for: Guide.self, Session.self, Conversation.self, ChatMessage.self, User.self,
+            PendingSessionCompletion.self,
             configurations: config
         )
         ttsAPI = MockTTSAPI()
@@ -333,6 +357,116 @@ final class BreathingViewModelTests: XCTestCase {
         guard await waitForCompletion(of: firstStart, "first start to finish") else { return }
         let stopTask = viewModel.stop()
         guard await waitForCompletion(of: stopTask, "rapid-start cleanup stop") else { return }
+    }
+
+    func testRapidDoubleStartWithPendingQueueOpensOnlyOneNewSession() async throws {
+        // Seed an offline practice so start()'s flush suspends on a real
+        // cross-actor createSession. That suspension is the interleaving window:
+        // a second start() dispatched while the flush holds the main actor must
+        // NOT open its own server session, or the practice is duplicated.
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: nil,
+                guideSlug: "test-breathing",
+                durationSeconds: 12,
+                idempotencyKey: "queued-key"
+            )
+        )
+        try container.mainContext.save()
+        await sessionAPI.configure(suspendCreation: true)
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+
+        let firstStart = Task { await viewModel.start() }
+        tasksUnderTest.append(firstStart)
+        let flushCreateStarted = await waitUntil("queued flush create to start") {
+            await self.sessionAPI.snapshot().createSessionCallCount == 1
+        }
+        guard flushCreateStarted else { return }
+
+        // Dispatched while the flush is still in flight and (before the fix)
+        // lifecycleState has not yet been claimed by the first start.
+        let secondStart = Task { await viewModel.start() }
+        tasksUnderTest.append(secondStart)
+
+        let api = sessionAPI!
+        let resumer = Task { [api] in
+            while !Task.isCancelled {
+                await api.resumeAllCreations()
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+        }
+        await firstStart.value
+        await secondStart.value
+        resumer.cancel()
+
+        let snapshot = await sessionAPI.snapshot()
+        XCTAssertEqual(
+            snapshot.createSessionCallCount,
+            2,
+            "a rapid double start with a queued offline practice must open exactly one new server session (plus the queued flush)"
+        )
+        let newPracticeKeys = snapshot.createdIdempotencyKeys.filter { $0 != "queued-key" }
+        XCTAssertEqual(
+            newPracticeKeys.count,
+            1,
+            "only one idempotency key should be minted for the new practice"
+        )
+
+        let cleanupStop = viewModel.stop()
+        guard await waitForCompletion(of: cleanupStop, "double-start cleanup stop") else { return }
+    }
+
+    func testBackgroundDuringFlushAbortsStartWithoutOrphanSession() async throws {
+        // A non-empty offline queue makes start()'s flush suspend on a real
+        // cross-actor createSession. Backgrounding during that window no-ops
+        // stop() (the lifecycle is still idle), so start() itself must notice
+        // canStart went false once the flush returns and abort BEFORE opening a
+        // new server session — otherwise the created row is orphaned (never
+        // completed, never queued) and the lifecycle wedges at .starting.
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: nil,
+                guideSlug: "test-breathing",
+                durationSeconds: 9,
+                idempotencyKey: "queued-key"
+            )
+        )
+        try container.mainContext.save()
+        await sessionAPI.configure(suspendCreation: true)
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+
+        let firstStart = Task { await viewModel.start() }
+        tasksUnderTest.append(firstStart)
+        let flushCreateStarted = await waitUntil("queued flush create to start") {
+            await self.sessionAPI.snapshot().createSessionCallCount == 1
+        }
+        guard flushCreateStarted else { return }
+
+        // Background while the flush still holds the main actor.
+        viewModel.handleAppActivity(isActive: false)
+
+        let api = sessionAPI!
+        let resumer = Task { [api] in
+            while !Task.isCancelled {
+                await api.resumeAllCreations()
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+        }
+        await firstStart.value
+        resumer.cancel()
+
+        let snapshot = await sessionAPI.snapshot()
+        XCTAssertEqual(
+            snapshot.createSessionCallCount,
+            1,
+            "backgrounding during the offline flush must not open a new (orphan) server session; only the queued flush create is expected"
+        )
+        XCTAssertFalse(
+            viewModel.isRunning,
+            "an aborted backgrounded start must not wedge the lifecycle at .starting"
+        )
     }
 
     func testRepeatedStop_completesCreatedSessionOnlyOnceEvenAtZeroSeconds() async {
@@ -663,6 +797,181 @@ final class BreathingViewModelTests: XCTestCase {
         let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
 
         XCTAssertEqual(viewModel.cycleLabel, "第 1 轮")
+    }
+
+    // MARK: - Pending completion persistence
+
+    func testFailedSessionCompletionPersistsPendingRecord() async throws {
+        struct CompletionFailure: Error, Equatable {}
+        await sessionAPI.configure(completionFailure: CompletionFailure())
+        var now = Date(timeIntervalSince1970: 100)
+        let viewModel = makeVisibleActiveViewModel(
+            phases: [("吸气", 10)],
+            now: { now }
+        )
+        guard await start(viewModel) else { return }
+        now = Date(timeIntervalSince1970: 105)
+
+        let stopTask = viewModel.stop()
+        guard await waitForCompletion(of: stopTask, "stop with failing completion") else { return }
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertEqual(pending.count, 1)
+        XCTAssertEqual(pending.first?.sessionID, "session-1")
+        XCTAssertEqual(pending.first?.guideSlug, "test-breathing")
+        XCTAssertEqual(pending.first?.durationSeconds, 5)
+    }
+
+    func testFailedSessionCreationQueuesOfflinePracticeForRetry() async throws {
+        struct CreationFailure: Error, Equatable {}
+        await sessionAPI.configure(creationFailure: CreationFailure())
+        var now = Date(timeIntervalSince1970: 100)
+        let viewModel = makeVisibleActiveViewModel(
+            phases: [("吸气", 10)],
+            now: { now }
+        )
+        guard await start(viewModel) else { return }
+        now = Date(timeIntervalSince1970: 108)
+
+        let stopTask = viewModel.stop()
+        guard await waitForCompletion(of: stopTask, "stop after failed creation") else { return }
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertEqual(pending.count, 1)
+        XCTAssertNil(pending.first?.sessionID)
+        XCTAssertEqual(pending.first?.guideSlug, "test-breathing")
+        XCTAssertEqual(pending.first?.durationSeconds, 8)
+    }
+
+    func testFlushCreatesSessionForOfflinePracticeThenCompletes() async throws {
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: nil,
+                guideSlug: "test-breathing",
+                durationSeconds: 33
+            )
+        )
+        try container.mainContext.save()
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+        await viewModel.flushPendingCompletions()
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertTrue(pending.isEmpty)
+        let snapshot = await sessionAPI.snapshot()
+        XCTAssertEqual(snapshot.createSessionCallCount, 1)
+        XCTAssertEqual(
+            snapshot.completions,
+            [.init(sessionID: "session-1", durationSeconds: 33)]
+        )
+    }
+
+    func testFlushPendingCompletionsRetriesAndClearsOnSuccess() async throws {
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: "queued-1",
+                guideSlug: "test-breathing",
+                durationSeconds: 42
+            )
+        )
+        try container.mainContext.save()
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+        await viewModel.flushPendingCompletions()
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertTrue(pending.isEmpty)
+        let snapshot = await sessionAPI.snapshot()
+        XCTAssertEqual(snapshot.createSessionCallCount, 0)
+        XCTAssertEqual(
+            snapshot.completions,
+            [.init(sessionID: "queued-1", durationSeconds: 42)]
+        )
+    }
+
+    func testFlushPendingCompletionsKeepsRecordOnFailure() async throws {
+        struct CompletionFailure: Error, Equatable {}
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: "queued-2",
+                guideSlug: "test-breathing",
+                durationSeconds: 17
+            )
+        )
+        try container.mainContext.save()
+        await sessionAPI.configure(completionFailure: CompletionFailure())
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+        await viewModel.flushPendingCompletions()
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertEqual(pending.count, 1)
+        XCTAssertEqual(pending.first?.sessionID, "queued-2")
+        XCTAssertEqual(pending.first?.durationSeconds, 17)
+    }
+
+    func testOfflineQueuedPracticeCarriesOriginalIdempotencyKey() async throws {
+        struct CreationFailure: Error, Equatable {}
+        await sessionAPI.configure(creationFailure: CreationFailure())
+        var now = Date(timeIntervalSince1970: 100)
+        let viewModel = makeVisibleActiveViewModel(
+            phases: [("吸气", 10)],
+            now: { now }
+        )
+        guard await start(viewModel) else { return }
+        now = Date(timeIntervalSince1970: 108)
+
+        let stopTask = viewModel.stop()
+        guard await waitForCompletion(of: stopTask, "stop after failed creation") else { return }
+
+        let snapshot = await sessionAPI.snapshot()
+        let sentKey = snapshot.createdIdempotencyKeys.first ?? nil
+        XCTAssertNotNil(sentKey, "start() should send a stable idempotency key with createSession")
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertEqual(pending.count, 1)
+        XCTAssertNil(pending.first?.sessionID)
+        XCTAssertEqual(
+            pending.first?.idempotencyKey,
+            sentKey,
+            "the queued practice must reuse the original create attempt's idempotency key so a later flush dedups against a committed-but-lost response"
+        )
+    }
+
+    func testFlushResendsIdempotencyKeyForOfflinePractice() async throws {
+        container.mainContext.insert(
+            PendingSessionCompletion(
+                sessionID: nil,
+                guideSlug: "test-breathing",
+                durationSeconds: 21,
+                idempotencyKey: "queued-key-1"
+            )
+        )
+        try container.mainContext.save()
+
+        let viewModel = makeVisibleActiveViewModel(phases: [("吸气", 1)])
+        await viewModel.flushPendingCompletions()
+
+        let descriptor = FetchDescriptor<PendingSessionCompletion>()
+        let pending = try container.mainContext.fetch(descriptor)
+        XCTAssertTrue(pending.isEmpty)
+        let snapshot = await sessionAPI.snapshot()
+        XCTAssertEqual(snapshot.createSessionCallCount, 1)
+        XCTAssertEqual(
+            snapshot.createdIdempotencyKeys,
+            ["queued-key-1"],
+            "flush must re-send the persisted idempotency key so the backend can dedup a retry"
+        )
+        XCTAssertEqual(
+            snapshot.completions,
+            [.init(sessionID: "session-1", durationSeconds: 21)]
+        )
     }
 
     private func makeVisibleActiveViewModel(

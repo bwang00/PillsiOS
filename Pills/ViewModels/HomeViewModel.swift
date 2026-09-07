@@ -2,6 +2,14 @@ import Foundation
 import SwiftData
 import Observation
 
+/// Protocol for the API methods HomeViewModel needs. Enables testability.
+protocol HomeAPIProtocol: Sendable {
+    func fetchGuides(category: String?) async throws -> [GuideDTO]
+    func fetchSessions(limit: Int, offset: Int) async throws -> [SessionDTO]
+}
+
+extension APIClient: HomeAPIProtocol {}
+
 @MainActor
 @Observable
 final class HomeViewModel {
@@ -11,29 +19,42 @@ final class HomeViewModel {
     var errorMessage: String?
 
     private let modelContext: ModelContext
+    private let api: HomeAPIProtocol
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, api: HomeAPIProtocol = APIClient.shared) {
         self.modelContext = modelContext
+        self.api = api
     }
 
     func loadData() async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
+        let requestUserID = currentUserID()
 
         do {
-            let guideDTOs = try await APIClient.shared.fetchGuides(category: "breathing")
+            let guideDTOs = try await api.fetchGuides(category: "breathing")
+            guard currentUserID() == requestUserID else { return }
             syncGuides(dtos: guideDTOs)
 
-            let sessionDTOs = try await APIClient.shared.fetchSessions(limit: 5)
+            let sessionDTOs = try await api.fetchSessions(limit: 5, offset: 0)
+            guard currentUserID() == requestUserID else { return }
             syncSessions(dtos: sessionDTOs)
         } catch {
+            guard currentUserID() == requestUserID else { return }
             loadFromCache()
             if guides.isEmpty {
                 errorMessage = "无法加载数据：\(error.localizedDescription)"
             }
         }
+    }
 
-        isLoading = false
+    private func currentUserID() -> String? {
+        guard let users = try? modelContext.fetch(FetchDescriptor<User>()),
+              users.count == 1 else {
+            return nil
+        }
+        return users[0].id
     }
 
     func loadFromCache() {
@@ -77,7 +98,9 @@ final class HomeViewModel {
             let existing = try? modelContext.fetch(
                 FetchDescriptor<Session>(predicate: #Predicate { $0.id == dto.id })
             ).first
-            if existing == nil {
+            if let existing {
+                existing.apply(dto)
+            } else {
                 modelContext.insert(Session(from: dto))
             }
         }

@@ -9,6 +9,7 @@ struct OfflineBanner: View {
         HStack(spacing: 8) {
             Image(systemName: "wifi.slash")
                 .font(.caption)
+                .accessibilityHidden(true)
             Text(message)
                 .font(.caption)
                 .fontWeight(.medium)
@@ -18,19 +19,23 @@ struct OfflineBanner: View {
                     .font(.caption)
                     .fontWeight(.semibold)
                     .buttonStyle(.borderless)
+                    // Enlarge the small caption-sized control to Apple's
+                    // 44×44pt minimum touch target without changing layout much.
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
         }
         .foregroundStyle(.white)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(.orange)
-        .transition(.move(edge: .top).combined(with: .opacity))
     }
 }
 
 /// View modifier that shows an offline banner when network is unavailable.
 struct OfflineBannerModifier: ViewModifier {
     @Environment(NetworkMonitor.self) private var network
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var retryAction: (() -> Void)?
 
     func body(content: Content) -> some View {
@@ -40,10 +45,11 @@ struct OfflineBannerModifier: ViewModifier {
                     message: "网络连接不可用",
                     retryAction: retryAction
                 )
+                .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
             }
             content
         }
-        .animation(.easeInOut(duration: 0.3), value: network.isOnline)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: network.isOnline)
     }
 }
 

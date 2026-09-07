@@ -47,5 +47,9 @@ struct BreathingCircle: View {
                 .scaleEffect(scale * 0.8)
         }
         .animation(.easeInOut(duration: 0.3), value: scale)
+        // The circle is a purely visual pacer; the phase label in BreathingView
+        // already conveys inhale/hold/exhale state to VoiceOver, so hide this
+        // decorative animation from the accessibility tree.
+        .accessibilityHidden(true)
     }
 }

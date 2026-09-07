@@ -28,5 +28,14 @@ struct MainTabView: View {
                 .tag(2)
         }
         .tint(.green)
+        .task {
+            // Drain any practice sessions queued from earlier offline failures.
+            // MainTabView only appears once signed in, so the shared API client
+            // already carries a valid token.
+            await SessionCompletionQueue.flush(
+                modelContext: modelContext,
+                api: APIClient.shared
+            )
+        }
     }
 }

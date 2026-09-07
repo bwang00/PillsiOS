@@ -156,6 +156,62 @@ final class TTSPlayerTests: XCTestCase {
         XCTAssertFalse(player.isPlaying)
     }
 
+    func testPlay_withValidAudioData_setsIsPlaying() {
+        // Positive control: proves a decodable fixture actually flips isPlaying,
+        // so the cancellation test below is not a false positive (garbage data
+        // fails to decode and would leave isPlaying false regardless of any
+        // cancellation guard).
+        player.play(data: Self.makeValidWAVData())
+
+        XCTAssertTrue(player.isPlaying)
+
+        player.stop()
+        XCTAssertFalse(player.isPlaying)
+    }
+
+    /// Builds a minimal, decodable 16-bit mono PCM WAV so `AVAudioPlayer(data:)`
+    /// initializes successfully without depending on any real audio output.
+    private static func makeValidWAVData() -> Data {
+        let sampleRate = 8000
+        let numSamples = 800
+        let numChannels = 1
+        let bitsPerSample = 16
+        let byteRate = sampleRate * numChannels * bitsPerSample / 8
+        let blockAlign = numChannels * bitsPerSample / 8
+        let dataSize = numSamples * blockAlign
+
+        var data = Data()
+        func appendString(_ s: String) { data.append(contentsOf: s.utf8) }
+        func appendUInt32LE(_ value: UInt32) {
+            var v = value.littleEndian
+            data.append(Data(bytes: &v, count: 4))
+        }
+        func appendUInt16LE(_ value: UInt16) {
+            var v = value.littleEndian
+            data.append(Data(bytes: &v, count: 2))
+        }
+
+        appendString("RIFF")
+        appendUInt32LE(UInt32(36 + dataSize))
+        appendString("WAVE")
+        appendString("fmt ")
+        appendUInt32LE(16)                 // PCM fmt chunk size
+        appendUInt16LE(1)                  // audio format = PCM
+        appendUInt16LE(UInt16(numChannels))
+        appendUInt32LE(UInt32(sampleRate))
+        appendUInt32LE(UInt32(byteRate))
+        appendUInt16LE(UInt16(blockAlign))
+        appendUInt16LE(UInt16(bitsPerSample))
+        appendString("data")
+        appendUInt32LE(UInt32(dataSize))
+        for i in 0..<numSamples {
+            let sample = Int16(sin(Double(i) * 0.1) * 10_000)
+            var le = sample.littleEndian
+            data.append(Data(bytes: &le, count: 2))
+        }
+        return data
+    }
+
     // MARK: - speak
 
     func testSpeak_callsAPI() async {
@@ -212,6 +268,56 @@ final class TTSPlayerTests: XCTestCase {
 
         XCTAssertEqual(reportedErrorCount, 0)
         XCTAssertFalse(player.isPlaying)
+    }
+
+    func testSpeak_whenTaskAlreadyCancelled_doesNotCallAPI() async {
+        var reportedErrorCount = 0
+        player = TTSPlayer(api: mockAPI) { _ in
+            reportedErrorCount += 1
+        }
+        await mockAPI.configure(data: Data([0x00]))
+
+        // Cancel before the MainActor-isolated speak body can run, so the
+        // leading `guard !Task.isCancelled` short-circuits the request.
+        let speakTask = Task { await player.speak("吸气") }
+        speakTask.cancel()
+        guard await waitForCompletion(of: speakTask, "pre-cancelled TTS request") else { return }
+
+        let snapshot = await mockAPI.snapshot()
+        XCTAssertEqual(snapshot.callCount, 0)
+        XCTAssertEqual(reportedErrorCount, 0)
+        XCTAssertFalse(player.isPlaying)
+    }
+
+    func testSpeak_cancelledDuringFetch_doesNotPlayReturnedAudio() async {
+        // Return decodable audio so that, absent the post-await cancellation
+        // guard, speak would call play(data:) and flip isPlaying to true.
+        await mockAPI.configure(data: Self.makeValidWAVData(), suspend: true)
+
+        let speakTask = Task { await player.speak("吸气") }
+        tasksUnderTest.append(speakTask)
+        let requestStarted = await waitUntil("TTS request to start") {
+            await self.mockAPI.snapshot().callCount == 1
+        }
+        guard requestStarted else { return }
+
+        // Cancel while suspended, then let the fetch succeed with valid audio.
+        speakTask.cancel()
+        await mockAPI.resumeRequests()
+        guard await waitForCompletion(of: speakTask, "cancelled-during-fetch TTS request") else { return }
+
+        XCTAssertFalse(player.isPlaying, "Cancellation must skip playback even when valid audio arrives")
+    }
+
+    func testSpeak_notCancelled_playsReturnedAudio() async {
+        // Positive control for the test above: the same valid audio, without
+        // cancellation, must reach play(data:) and set isPlaying.
+        await mockAPI.configure(data: Self.makeValidWAVData())
+
+        let speakTask = Task { await player.speak("吸气") }
+        guard await waitForCompletion(of: speakTask, "successful TTS playback") else { return }
+
+        XCTAssertTrue(player.isPlaying)
     }
 
     private func waitForCompletion(

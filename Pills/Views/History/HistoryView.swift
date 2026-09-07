@@ -23,6 +23,7 @@ struct HistoryView: View {
                         if vm.canLoadMore {
                             ProgressView()
                                 .frame(maxWidth: .infinity)
+                                .accessibilityLabel("加载更多记录")
                                 .onAppear {
                                     Task { await vm.loadMore() }
                                 }
@@ -60,6 +61,7 @@ struct HistoryView: View {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text(error)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
@@ -67,6 +69,7 @@ struct HistoryView: View {
             Button("重试", action: retry)
                 .buttonStyle(.bordered)
                 .tint(.green)
+                .frame(minWidth: 44, minHeight: 44)
         }
         .padding()
         .listRowSeparator(.hidden)
@@ -77,6 +80,7 @@ struct HistoryView: View {
             Image(systemName: "clock.arrow.circlepath")
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text("暂无练习记录")
                 .font(.headline)
             Text("完成一次呼吸练习后，记录将显示在这里")
@@ -110,8 +114,10 @@ struct HistoryView: View {
                 Image(systemName: session.completedAt != nil ? "checkmark.circle.fill" : "clock")
                     .font(.caption)
                     .foregroundStyle(session.completedAt != nil ? .green : .secondary)
+                    .accessibilityLabel(session.completedAt != nil ? "已完成" : "未完成")
             }
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
     }
 }

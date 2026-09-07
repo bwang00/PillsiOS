@@ -30,32 +30,36 @@ final class HistoryViewModel {
     }
 
     func loadInitial() async {
-        currentOffset = 0
         canLoadMore = true
-        await fetchFromServer()
+        await fetchFromServer(offset: 0)
     }
 
     func loadMore() async {
         guard !isLoading, canLoadMore else { return }
-        currentOffset += pageSize
-        await fetchFromServer(append: true)
+        await fetchFromServer(offset: currentOffset + pageSize)
     }
 
     func refresh() async {
-        currentOffset = 0
         canLoadMore = true
-        await fetchFromServer()
+        await fetchFromServer(offset: 0)
     }
 
-    private func fetchFromServer(append: Bool = false) async {
+    private func fetchFromServer(offset: Int) async {
         isLoading = true
         errorMessage = nil
+        defer { isLoading = false }
+        let requestUserID = currentUserID()
 
         do {
             let dtos = try await api.fetchSessions(
                 limit: pageSize,
-                offset: currentOffset
+                offset: offset
             )
+            guard currentUserID() == requestUserID else { return }
+            // Commit pagination state only after a successful fetch, so a
+            // failure keeps the previous offset and a retry re-requests the
+            // same page instead of skipping ahead.
+            currentOffset = offset
 
             if dtos.count < pageSize {
                 canLoadMore = false
@@ -66,7 +70,9 @@ final class HistoryViewModel {
                 let exists = try? modelContext.fetch(
                     FetchDescriptor<Session>(predicate: #Predicate { $0.id == dto.id })
                 ).first
-                if exists == nil {
+                if let exists {
+                    exists.apply(dto)
+                } else {
                     modelContext.insert(Session(from: dto))
                 }
             }
@@ -75,6 +81,7 @@ final class HistoryViewModel {
             // Reload from cache for consistent ordering
             loadFromCache()
         } catch {
+            guard currentUserID() == requestUserID else { return }
             if sessions.isEmpty {
                 loadFromCache()
                 if sessions.isEmpty {
@@ -82,8 +89,14 @@ final class HistoryViewModel {
                 }
             }
         }
+    }
 
-        isLoading = false
+    private func currentUserID() -> String? {
+        guard let users = try? modelContext.fetch(FetchDescriptor<User>()),
+              users.count == 1 else {
+            return nil
+        }
+        return users[0].id
     }
 
     private func loadFromCache() {

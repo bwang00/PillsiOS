@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var viewModel: HomeViewModel?
     @State private var selectedGuide: Guide?
+    @State private var signOutError: String?
 
     var body: some View {
         NavigationStack {
@@ -30,11 +31,26 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .destructive) {
-                        authManager.signOut()
+                        Task {
+                            do {
+                                try await authManager.signOut()
+                            } catch {
+                                signOutError = error.localizedDescription
+                            }
+                        }
                     } label: {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                     }
+                    .accessibilityLabel("退出登录")
                 }
+            }
+            .alert("退出登录失败", isPresented: Binding(
+                get: { signOutError != nil },
+                set: { if !$0 { signOutError = nil } }
+            )) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(signOutError ?? "")
             }
             .refreshable {
                 await viewModel?.loadData()
@@ -81,6 +97,8 @@ struct HomeView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title) \(value)\(unit)")
     }
 
     @ViewBuilder
@@ -107,6 +125,7 @@ struct HomeView: View {
                         .fontWeight(.medium)
                         .buttonStyle(.bordered)
                         .tint(.green)
+                        .frame(minWidth: 44, minHeight: 44)
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -145,6 +164,7 @@ struct HomeView: View {
                 }
                 .padding()
                 .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 10))
+                .accessibilityElement(children: .combine)
             }
         }
     }

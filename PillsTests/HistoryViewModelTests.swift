@@ -18,6 +18,23 @@ final class MockHistoryAPI: HistoryAPIProtocol, @unchecked Sendable {
     }
 }
 
+private actor DelayedHistoryAPI: HistoryAPIProtocol {
+    private var continuation: CheckedContinuation<[SessionDTO], Error>?
+    private(set) var didStart = false
+
+    func fetchSessions(limit: Int, offset: Int) async throws -> [SessionDTO] {
+        didStart = true
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+        }
+    }
+
+    func succeed(with sessions: [SessionDTO]) {
+        continuation?.resume(returning: sessions)
+        continuation = nil
+    }
+}
+
 // MARK: - Tests
 
 @MainActor
@@ -62,6 +79,60 @@ final class HistoryViewModelTests: XCTestCase {
         XCTAssertFalse(vm.isLoading)
         XCTAssertNil(vm.errorMessage)
         XCTAssertEqual(mockAPI.lastOffset, 0)
+    }
+
+    func testSyncUpdatesExistingSessionWhenServerReturnsCompletion() async throws {
+        // Local cache has an in-flight session (created but never completed).
+        let cached = Session(id: "sync-1", guideSlug: "4-7-8-breathing", startedAt: Date())
+        container.mainContext.insert(cached)
+        try container.mainContext.save()
+        XCTAssertNil(cached.completedAt)
+        XCTAssertNil(cached.durationSeconds)
+
+        // Server now reports the session as completed (e.g. flush from another
+        // device or a retry that finally landed).
+        let dto = SessionDTO(
+            id: "sync-1",
+            guide_slug: "4-7-8-breathing",
+            started_at: "2026-01-01T00:00:00Z",
+            completed_at: "2026-01-01T00:01:30Z",
+            duration_seconds: 90
+        )
+        mockAPI.result = .success([dto])
+        let vm = makeViewModel()
+
+        await vm.loadInitial()
+
+        let descriptor = FetchDescriptor<Session>(
+            predicate: #Predicate { $0.id == "sync-1" }
+        )
+        let stored = try container.mainContext.fetch(descriptor)
+        XCTAssertEqual(stored.count, 1)
+        XCTAssertNotNil(stored.first?.completedAt)
+        XCTAssertEqual(stored.first?.durationSeconds, 90)
+    }
+
+    func testDelayedResponseIsDiscardedAfterAuthenticatedUserChanges() async throws {
+        let api = DelayedHistoryAPI()
+        container.mainContext.insert(User(id: "user-a", username: "alice"))
+        try container.mainContext.save()
+        let vm = HistoryViewModel(modelContext: container.mainContext, api: api)
+
+        let load = Task { await vm.loadInitial() }
+        while await !api.didStart {
+            await Task.yield()
+        }
+
+        for user in try container.mainContext.fetch(FetchDescriptor<User>()) {
+            container.mainContext.delete(user)
+        }
+        container.mainContext.insert(User(id: "user-b", username: "bob"))
+        try container.mainContext.save()
+        await api.succeed(with: [makeDTO(id: "user-a-session")])
+        await load.value
+
+        XCTAssertTrue(try container.mainContext.fetch(FetchDescriptor<Session>()).isEmpty)
+        XCTAssertTrue(vm.sessions.isEmpty)
     }
 
     func testLoadInitial_emptyResponse_setsCannotLoadMore() async {
@@ -132,6 +203,24 @@ final class HistoryViewModelTests: XCTestCase {
         await vm.loadInitial()
         XCTAssertEqual(mockAPI.lastOffset, 0)
 
+        await vm.loadMore()
+        XCTAssertEqual(mockAPI.lastOffset, 20)
+    }
+
+    func testLoadMore_failureDoesNotCorruptOffset() async {
+        let dtos = (0..<20).map { makeDTO(id: "s\($0)") }
+        mockAPI.result = .success(dtos)
+        let vm = makeViewModel()
+
+        await vm.loadInitial()
+        XCTAssertEqual(mockAPI.lastOffset, 0)
+
+        // Fail the next page
+        mockAPI.result = .failure(APIError.networkUnavailable)
+        await vm.loadMore()
+
+        // Retry should use the same offset, not skip ahead
+        mockAPI.result = .success((20..<40).map { makeDTO(id: "s\($0)") })
         await vm.loadMore()
         XCTAssertEqual(mockAPI.lastOffset, 20)
     }

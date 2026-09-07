@@ -3,7 +3,7 @@ import SwiftData
 import Observation
 
 protocol BreathingSessionAPI: Sendable {
-    func createSession(guideSlug: String) async throws -> SessionDTO
+    func createSession(guideSlug: String, idempotencyKey: String?) async throws -> SessionDTO
     func completeSession(id: String, durationSeconds: Int) async throws -> SessionDTO
 }
 
@@ -49,6 +49,7 @@ final class BreathingViewModel {
         let sessionCreationTask: Task<SessionDTO, Error>?
         let timerTask: Task<Void, Never>?
         let elapsedSeconds: Int
+        let idempotencyKey: String
     }
 
     var phase: Phase = .idle
@@ -75,8 +76,17 @@ final class BreathingViewModel {
     private var sessionCreationTask: Task<SessionDTO, Error>?
     private var sessionId: String?
     private var sessionStartTime: Date?
+    /// Per-practice idempotency key sent with createSession and persisted onto
+    /// any queued offline completion, so a lost-response retry dedups server-side.
+    private var currentIdempotencyKey: String = UUID().uuidString
     private var generation: UInt64 = 0
     private var lifecycleState: LifecycleState = .idle
+    /// Synchronous re-entrancy claim for `start()`. Set before the first `await`
+    /// (the offline-queue flush) and cleared on return, so a second `start()`
+    /// dispatched while the flush suspends cannot slip past the lifecycle guard
+    /// and open a duplicate server-side session. Kept separate from
+    /// `lifecycleState` so `stop()` during the flush still no-ops as before.
+    private var isStarting = false
     private var isViewVisible = false
     private var isAppActive = false
 
@@ -131,7 +141,25 @@ final class BreathingViewModel {
     func start() async {
         guard canStart,
               !phases.isEmpty,
+              !isStarting,
               lifecycleState == .idle || lifecycleState == .finished else { return }
+
+        // Claim re-entrancy synchronously, before the first await, so a second
+        // start() dispatched while the offline-queue flush below suspends
+        // returns at the guard above instead of opening a duplicate session.
+        isStarting = true
+        defer { isStarting = false }
+
+        // Drain any queued completions from earlier failures before opening a
+        // new server-side session. Best-effort: flush errors stay queued.
+        await flushPendingCompletions()
+
+        // The flush suspends. A backgrounding/dismissal during that window
+        // no-ops stop() (the lifecycle is still idle), so re-validate canStart
+        // before opening a session — otherwise we would create a server-side
+        // row and then bail at the guards below, orphaning it and wedging the
+        // lifecycle at .starting. The defer above releases isStarting.
+        guard canStart else { return }
 
         generation &+= 1
         let runGeneration = generation
@@ -142,9 +170,14 @@ final class BreathingViewModel {
         phaseProgress = 0
         sessionId = nil
         sessionStartTime = nil
+        // Snapshot the key into a local so the value sent on the wire is exactly
+        // the value carried into StopContext, even if a later run overwrites
+        // currentIdempotencyKey before this Task's body executes.
+        let runKey = UUID().uuidString
+        currentIdempotencyKey = runKey
 
         let creationTask = Task {
-            try await api.createSession(guideSlug: guide.slug)
+            try await api.createSession(guideSlug: guide.slug, idempotencyKey: runKey)
         }
         sessionCreationTask = creationTask
 
@@ -192,7 +225,8 @@ final class BreathingViewModel {
             sessionID: sessionId,
             sessionCreationTask: sessionCreationTask,
             timerTask: timerTask,
-            elapsedSeconds: elapsedSeconds
+            elapsedSeconds: elapsedSeconds,
+            idempotencyKey: currentIdempotencyKey
         )
 
         sessionStartTime = nil
@@ -223,9 +257,29 @@ final class BreathingViewModel {
                     id: completedSessionID,
                     durationSeconds: stopContext.elapsedSeconds
                 )
+                removePendingCompletion(sessionID: completedSessionID)
             } catch {
                 print("⚠️ Failed to complete session: \(error)")
+                queuePendingCompletion(
+                    sessionID: completedSessionID,
+                    guideSlug: guide.slug,
+                    durationSeconds: stopContext.elapsedSeconds
+                )
             }
+        } else {
+            // createSession never returned an id (offline / backend error), but
+            // the practice still ran. Queue it so a later flush can create the
+            // session and upload the duration instead of losing the practice.
+            // Carry this run's idempotency key: if the original createSession
+            // actually committed server-side but lost its response, the flush
+            // retry reuses the same key and the backend returns that session
+            // instead of inserting a duplicate.
+            queuePendingCompletion(
+                sessionID: nil,
+                guideSlug: guide.slug,
+                durationSeconds: stopContext.elapsedSeconds,
+                idempotencyKey: stopContext.idempotencyKey
+            )
         }
 
         guard lifecycleState == .stopping,
@@ -233,6 +287,59 @@ final class BreathingViewModel {
         phase = .finished
         phaseLabel = "练习完成"
         lifecycleState = .finished
+    }
+
+    // MARK: - Pending completion queue
+
+    /// Retries any queued session completions and removes them only after the
+    /// backend acknowledges the upload. Records without a server session id
+    /// (offline practices) are created first. Failures leave the record in
+    /// place so a later flush can try again.
+    func flushPendingCompletions() async {
+        await SessionCompletionQueue.flush(modelContext: modelContext, api: api)
+    }
+
+    private func queuePendingCompletion(
+        sessionID: String?,
+        guideSlug: String,
+        durationSeconds: Int,
+        idempotencyKey: String? = nil
+    ) {
+        if let sessionID {
+            // Dedup by server session id so retrying the same session updates
+            // the existing record instead of creating a duplicate.
+            let existing = (try? modelContext.fetch(
+                FetchDescriptor<PendingSessionCompletion>(
+                    predicate: #Predicate { $0.sessionID == sessionID }
+                )
+            ).first)
+            if let existing {
+                existing.durationSeconds = durationSeconds
+                existing.createdAt = now()
+                try? modelContext.save()
+                return
+            }
+        }
+        modelContext.insert(
+            PendingSessionCompletion(
+                sessionID: sessionID,
+                guideSlug: guideSlug,
+                durationSeconds: durationSeconds,
+                idempotencyKey: idempotencyKey,
+                createdAt: now()
+            )
+        )
+        try? modelContext.save()
+    }
+
+    private func removePendingCompletion(sessionID: String) {
+        guard let existing = try? modelContext.fetch(
+            FetchDescriptor<PendingSessionCompletion>(
+                predicate: #Predicate { $0.sessionID == sessionID }
+            )
+        ).first else { return }
+        modelContext.delete(existing)
+        try? modelContext.save()
     }
 
     // MARK: - Breathing cycle loop

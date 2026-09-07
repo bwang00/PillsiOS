@@ -7,7 +7,7 @@ struct GuideCard: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                // Icon
+                // Icon (decorative — the title/summary already describe the guide)
                 ZStack {
                     Circle()
                         .fill(iconColor.opacity(0.15))
@@ -16,6 +16,7 @@ struct GuideCard: View {
                         .font(.title3)
                         .foregroundStyle(iconColor)
                 }
+                .accessibilityHidden(true)
 
                 // Text
                 VStack(alignment: .leading, spacing: 4) {
@@ -41,8 +42,8 @@ struct GuideCard: View {
             .contentShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
-        .scaleEffect(1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: UUID())
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("开始\(guide.title)")
     }
 
     private var iconName: String {

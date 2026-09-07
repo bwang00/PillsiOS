@@ -5,6 +5,7 @@ struct BreathingView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let guide: Guide
 
@@ -23,7 +24,8 @@ struct BreathingView: View {
             Text(viewModel?.phaseLabel ?? "准备开始")
                 .font(.title)
                 .fontWeight(.medium)
-                .animation(.easeInOut, value: viewModel?.phaseLabel)
+                .animation(reduceMotion ? nil : .easeInOut, value: viewModel?.phaseLabel)
+                .accessibilityAddTraits(.isHeader)
 
             // Cycle counter
             if let vm = viewModel, vm.isRunning {
@@ -36,6 +38,7 @@ struct BreathingView: View {
             Text(viewModel?.formattedTime ?? "00:00")
                 .font(.system(.title3, design: .monospaced))
                 .foregroundStyle(.secondary)
+                .accessibilityLabel("已练习 \(viewModel?.formattedTime ?? "00:00")")
 
             Spacer()
 

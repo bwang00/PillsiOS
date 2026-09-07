@@ -2,19 +2,16 @@ import Foundation
 import SwiftData
 import Observation
 
-/// Protocol for the API methods ChatViewModel needs. Enables testability.
 protocol ChatAPIProtocol: Sendable {
-    func createConversation(username: String?) async throws -> ConversationDTO
+    func createConversation() async throws -> ConversationDTO
     func fetchConversationDetail(_ id: String) async throws -> ConversationDetailDTO
-    func fetchConversations(username: String?, limit: Int) async throws -> [ConversationDTO]
+    func fetchConversations(limit: Int) async throws -> [ConversationDTO]
     func sendMessage(conversationId: String, role: String, content: String) async throws -> MessageDTO
-    func sendAIChat(message: String, history: [AIChatHistoryEntry], username: String?) async throws -> AIChatResponse
+    func sendAIChat(message: String, history: [AIChatHistoryEntry]) async throws -> AIChatResponse
 }
 
 extension APIClient: ChatAPIProtocol {}
 
-/// ViewModel for the AI Chat screen.
-/// Manages conversation state, message sending, and AI responses.
 @MainActor
 @Observable
 final class ChatViewModel {
@@ -25,23 +22,19 @@ final class ChatViewModel {
     var conversationId: String?
 
     private let modelContext: ModelContext
-    private let username: String?
     private let api: ChatAPIProtocol
 
     struct ChatMessageItem: Identifiable {
         let id: String
-        let role: String // "user" or "assistant"
+        let role: String
         let content: String
         let timestamp: Date
     }
 
-    init(modelContext: ModelContext, username: String?, api: ChatAPIProtocol = APIClient.shared) {
+    init(modelContext: ModelContext, api: ChatAPIProtocol = APIClient.shared) {
         self.modelContext = modelContext
-        self.username = username
         self.api = api
     }
-
-    // MARK: - Conversation management
 
     func loadOrCreateConversation() async {
         if let conversationId {
@@ -53,7 +46,7 @@ final class ChatViewModel {
 
     func createNewConversation() async {
         do {
-            let dto = try await api.createConversation(username: username)
+            let dto = try await api.createConversation()
             conversationId = dto.id
             messages = []
         } catch {
@@ -80,19 +73,16 @@ final class ChatViewModel {
 
     func loadConversationList() async -> [ConversationDTO] {
         do {
-            return try await api.fetchConversations(username: username, limit: 20)
+            return try await api.fetchConversations(limit: 20)
         } catch {
             return []
         }
     }
 
-    // MARK: - Send message
-
     func sendMessage() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
 
-        // Auto-create conversation if needed
         if conversationId == nil {
             await createNewConversation()
         }
@@ -102,16 +92,15 @@ final class ChatViewModel {
         isSending = true
         errorMessage = nil
 
-        // Add user message locally
-        let userMsg = ChatMessageItem(
-            id: UUID().uuidString,
-            role: "user",
-            content: text,
-            timestamp: Date()
+        messages.append(
+            ChatMessageItem(
+                id: UUID().uuidString,
+                role: "user",
+                content: text,
+                timestamp: Date()
+            )
         )
-        messages.append(userMsg)
 
-        // Save user message to server
         do {
             _ = try await api.sendMessage(
                 conversationId: conversationId,
@@ -122,28 +111,21 @@ final class ChatViewModel {
             print("⚠️ Failed to save user message: \(error)")
         }
 
-        // Build conversation history for AI
         let history = messages.map {
             AIChatHistoryEntry(role: $0.role, content: $0.content)
         }
 
-        // Call AI
         do {
-            let response = try await api.sendAIChat(
-                message: text,
-                history: history,
-                username: username
+            let response = try await api.sendAIChat(message: text, history: history)
+            messages.append(
+                ChatMessageItem(
+                    id: UUID().uuidString,
+                    role: "assistant",
+                    content: response.reply,
+                    timestamp: Date()
+                )
             )
 
-            let aiMsg = ChatMessageItem(
-                id: UUID().uuidString,
-                role: "assistant",
-                content: response.reply,
-                timestamp: Date()
-            )
-            messages.append(aiMsg)
-
-            // Save AI message to server
             do {
                 _ = try await api.sendMessage(
                     conversationId: conversationId,
