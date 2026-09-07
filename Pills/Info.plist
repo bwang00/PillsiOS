@@ -24,6 +24,10 @@
 	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
+	<key>PILLSAPIBaseURL</key>
+	<string>$(PILLS_API_BASE_URL)</string>
+	<key>PILLSAPIEnvironment</key>
+	<string>$(PILLS_API_ENVIRONMENT)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

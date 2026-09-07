@@ -68,4 +68,21 @@ extension Session {
             durationSeconds: dto.duration_seconds
         )
     }
+
+    /// Refreshes an existing cached row from the server DTO so late-arriving
+    /// completion data (e.g. after a queued retry or a sibling-device sync)
+    /// propagates instead of being ignored.
+    func apply(_ dto: SessionDTO) {
+        let fmt = ISO8601DateFormatter()
+        fmt.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let fallbackFmt = ISO8601DateFormatter()
+        guideSlug = dto.guide_slug
+        if let started = fmt.date(from: dto.started_at) ?? fallbackFmt.date(from: dto.started_at) {
+            startedAt = started
+        }
+        completedAt = dto.completed_at.flatMap {
+            fmt.date(from: $0) ?? fallbackFmt.date(from: $0)
+        }
+        durationSeconds = dto.duration_seconds
+    }
 }

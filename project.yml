@@ -7,11 +7,26 @@ options:
   generateEmptyDirectories: true
   groupSortPosition: top
 
+configs:
+  Debug: debug
+  Staging: release
+  Release: release
+
 settings:
   base:
     SWIFT_VERSION: "5.9"
     TARGETED_DEVICE_FAMILY: "1"
     INFOPLIST_FILE: Pills/Info.plist
+  configs:
+    Debug:
+      PILLS_API_ENVIRONMENT: Development
+      PILLS_API_BASE_URL: "http://127.0.0.1:8001"
+    Staging:
+      PILLS_API_ENVIRONMENT: Staging
+      PILLS_API_BASE_URL: "https://staging.pills.blueping.xyz"
+    Release:
+      PILLS_API_ENVIRONMENT: Production
+      PILLS_API_BASE_URL: "https://pills.blueping.xyz"
 
 targets:
   Pills:
@@ -36,6 +51,8 @@ targets:
         CFBundleDisplayName: Pills
         CFBundleShortVersionString: "1.0.0"
         CFBundleVersion: "1"
+        PILLSAPIBaseURL: "$(PILLS_API_BASE_URL)"
+        PILLSAPIEnvironment: "$(PILLS_API_ENVIRONMENT)"
         UILaunchScreen:
           UIImageName: LaunchImage
           UIColorName: AccentColor

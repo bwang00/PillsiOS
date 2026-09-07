@@ -72,7 +72,6 @@ struct ConversationDetailDTO: Codable {
 struct AIChatRequest: Codable {
     let message: String
     let history: [AIChatHistoryEntry]
-    let username: String?
 }
 
 struct AIChatHistoryEntry: Codable {

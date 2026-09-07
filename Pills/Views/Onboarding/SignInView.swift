@@ -9,13 +9,13 @@ struct SignInView: View {
         VStack(spacing: 32) {
             Spacer()
 
-            // App branding
             VStack(spacing: 12) {
                 Image("GinkgoLogo")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100, height: 100)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .accessibilityHidden(true)
 
                 Text("Pills")
                     .font(.largeTitle)
@@ -28,7 +28,6 @@ struct SignInView: View {
 
             Spacer()
 
-            // Sign in button
             Button {
                 Task {
                     do {
@@ -41,6 +40,7 @@ struct SignInView: View {
             } label: {
                 HStack {
                     Image(systemName: "apple.logo")
+                        .accessibilityHidden(true)
                     Text("通过 Apple 登录")
                         .fontWeight(.medium)
                 }
@@ -53,18 +53,8 @@ struct SignInView: View {
 
             if authManager.isSigningIn {
                 ProgressView()
+                    .accessibilityLabel("正在登录")
             }
-
-            #if DEBUG
-            Button {
-                authManager.devSignIn()
-            } label: {
-                Text("Dev 跳过登录")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.top, 8)
-            #endif
 
             Spacer()
         }
@@ -74,10 +64,5 @@ struct SignInView: View {
         } message: {
             Text(errorMessage)
         }
-        #if DEBUG
-        .task {
-            authManager.devSignIn()
-        }
-        #endif
     }
 }
