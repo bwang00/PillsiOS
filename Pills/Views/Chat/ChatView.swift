@@ -432,10 +432,12 @@ final class SpeechRecognizer: NSObject {
         request.shouldReportPartialResults = true
         request.addsPunctuation = true
 
-        // Prefer on-device when available
-        if speechRecognizer?.supportsOnDeviceRecognition == true {
-            request.requiresOnDeviceRecognition = true
-        }
+        // Intentionally do NOT set `requiresOnDeviceRecognition`. That flag
+        // only makes sense when the on-device model for the locale is actually
+        // installed; `supportsOnDeviceRecognition` reports hardware capability,
+        // not model availability. Forcing on-device for zh-CN (model often
+        // absent) yields a spurious "No speech detected". Server-based
+        // recognition is reliable for Chinese.
 
         recognitionRequest = request
 
@@ -479,11 +481,13 @@ final class SpeechRecognizer: NSObject {
     }
 
     func stopRecording() {
-        audioEngine.stop()
-        cleanupAudioEngine()
+        // Signal end-of-audio FIRST so the recognizer finalizes and delivers
+        // the last transcription. The previous order ran cleanupAudioEngine()
+        // (which nils recognitionRequest) before endAudio(), so endAudio never
+        // ran, and cancelling the task discarded the in-flight result and
+        // surfaced a spurious "No speech detected" error.
         recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
-        recognitionTask = nil
+        cleanupAudioEngine()
     }
 
     private func cleanupAudioEngine() {
