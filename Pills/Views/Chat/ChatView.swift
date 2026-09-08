@@ -520,6 +520,23 @@ struct ChatTextField: UIViewRepresentable {
         }
     }
 
+    /// Report a bounded ideal height so SwiftUI never stretches the field to
+    /// fill a tall proposal. Without this the field expands inside the bottom
+    /// `safeAreaInset`, collapsing the message `ScrollView` to zero height and
+    /// leaving the chat content area blank. Width still tracks the proposal so
+    /// the field fills the input row horizontally. Height grows with Dynamic
+    /// Type via the control's intrinsic content size.
+    func sizeThatFits(
+        _ proposal: ProposedViewSize,
+        uiView: UITextField,
+        context: Context
+    ) -> CGSize? {
+        let intrinsic = uiView.intrinsicContentSize
+        let height = max(44, intrinsic.height)
+        let width = proposal.width ?? intrinsic.width
+        return CGSize(width: width, height: height)
+    }
+
     func makeCoordinator() -> Coordinator {
         Coordinator(text: $text, onReturn: onReturn)
     }

@@ -1,6 +1,7 @@
 import XCTest
 import SwiftUI
 import SwiftData
+import UIKit
 @testable import Pills
 
 /// Integration tests for ChatView — verifies rendering and state wiring.
@@ -33,7 +34,48 @@ final class ChatViewTests: XCTestCase {
         XCTAssertNotNil(controller.view)
     }
 
-    // MARK: - ChatWelcomeView
+    // MARK: - Regression: input text field must not swallow the content area
+
+    /// Root cause of the "blank AI Chat" bug: the UIKit-backed `ChatTextField`
+    /// accepted whatever height SwiftUI proposed, so inside the bottom
+    /// `safeAreaInset` it stretched to fill the whole screen, collapsing the
+    /// message `ScrollView` to zero height (welcome + bubbles never visible).
+    /// The field must size to its intrinsic/control height, not the proposal.
+    func testChatTextField_doesNotExpandToFillTallProposal() throws {
+        let tf = ChatTextField(
+            text: .constant(""),
+            placeholder: "输入消息...",
+            onReturn: { _ in }
+        )
+        let controller = UIHostingController(
+            rootView: tf.frame(width: 300, height: 600)
+        )
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        CATransaction.flush()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.3))
+        controller.view.layoutIfNeeded()
+
+        let field = try XCTUnwrap(
+            Self.findTextField(in: controller.view),
+            "expected a UITextField in the hosted hierarchy"
+        )
+        XCTAssertLessThanOrEqual(
+            field.frame.height, 80,
+            "text field must not expand to fill the proposed height (got \(field.frame.height))"
+        )
+    }
+
+    private static func findTextField(in view: UIView) -> UITextField? {
+        if let field = view as? UITextField { return field }
+        for subview in view.subviews {
+            if let found = findTextField(in: subview) { return found }
+        }
+        return nil
+    }
 
     func testWelcomeView_renders() {
         let welcome = ChatWelcomeView()
