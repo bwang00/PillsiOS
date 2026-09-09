@@ -10,7 +10,7 @@
 | 部署目标 | iOS 17.0 |
 | MARKETING_VERSION | 1.0.0 |
 | CURRENT_PROJECT_VERSION | 1 |
-| DEVELOPMENT_TEAM | 空（尚未设置） |
+| DEVELOPMENT_TEAM | `G7T8643585`（已同步至 `project.yml` 与 `project.pbxproj` 三个 app target 配置） |
 | 已声明能力 | Sign in with Apple（`Pills/Pills.entitlements`） |
 | 已声明用途字符串 | `NSMicrophoneUsageDescription`、`NSSpeechRecognitionUsageDescription` |
 
@@ -50,14 +50,16 @@ Xcode 开启“Automatically manage signing”后，上述注册通常会自动�
 
 > 注意：本仓库用 **XcodeGen** 生成工程。若在 Xcode 里手动改了签名，下次 `xcodegen generate` 会覆盖。因此手动方案只适合“临时打一次包”，长期请把 Team ID 写进 `project.yml`（见方案 B）。
 
-### 方案 B — 写入 `project.yml`（长期可复现，本次未执行）
+### 方案 B — 写入 `project.yml`（长期可复现，**已落地**）
 
-准备好 Team ID 后，把 `targets.Pills.settings.base.DEVELOPMENT_TEAM` 从 `""` 改成你的 10 位 Team ID，再 `xcodegen generate`。可选一并加入：
+> 现状：Team ID `G7T8643585` 已同步进 `project.yml` 的 `targets.Pills.settings.base.DEVELOPMENT_TEAM`，与 `project.pbxproj`（三个 app target 配置）一致。因此再跑 `xcodegen generate` 不会抹掉 Team ID，签名配置可复现。
+
+把 `targets.Pills.settings.base.DEVELOPMENT_TEAM` 设为你的 10 位 Team ID，再 `xcodegen generate`。可选一并加入：
 
 ```yaml
     settings:
       base:
-        DEVELOPMENT_TEAM: "XXXXXXXXXX"   # ← 替换为你的 Team ID
+        DEVELOPMENT_TEAM: "G7T8643585"   # ← 当前使用的 Team ID
         CODE_SIGN_STYLE: Automatic
 ```
 
@@ -92,7 +94,7 @@ xcodebuild -exportArchive \
 
 ```xml
 <key>method</key>            <string>app-store</string>
-<key>teamID</key>            <string>XXXXXXXXXX</string>
+<key>teamID</key>            <string>G7T8643585</string>
 <key>signingStyle</key>      <string>automatic</string>
 <key>uploadSymbols</key>     <true/>
 <key>destination</key>       <string>upload</string>
@@ -197,7 +199,7 @@ xcodebuild build -project Pills.xcodeproj -scheme Pills \
 
 ## 待办汇总（本次未执行）
 
-1. 填入 Team ID（方案 A 手动 或 方案 B 写入 `project.yml`）。
+1. 填入 Team ID：**已完成** — `G7T8643585` 已同步至 `project.yml` 与 `project.pbxproj`（三个 app target 配置），`xcodegen generate` 不会抹掉（见方案 B）。
 2. `Info.plist` 增加 `ITSAppUsesNonExemptEncryption=false`。
 3. 新建并填写 `PrivacyInfo.xcprivacy` 隐私清单。
 4. App Store Connect 填写隐私营养标签与元数据。
