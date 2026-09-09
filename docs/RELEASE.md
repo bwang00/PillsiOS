@@ -119,28 +119,28 @@ Product → Destination 选 **Any iOS Device (arm64)** → Product → **Archive
 
 ## 6. App Store 提交前检查清单
 
-以下项**当前仓库尚未落地**，属于上架前必须补齐的“待办”（本次按你的选择只出指引，不改代码）：
+进度：6.1 出口合规、6.2 隐私清单、6.4 权限文案、6.6 图标 / 启动屏、6.7 无障碍均已落地；6.3 营养标签与 6.5 之后的归档 / 上传仍待在 App Store Connect 侧完成。
 
-### 6.1 出口合规（Export Compliance）
+### 6.1 出口合规（Export Compliance）— ✅ 已落地
 
-App 使用 HTTPS / Sign in with Apple 等标准加密。为避免每次提交都被追问，需在 `Info.plist` 增加：
+App 使用 HTTPS / Sign in with Apple 等标准加密。为避免每次提交都被追问，`Info.plist` 已加入：
 
 ```xml
 <key>ITSAppUsesNonExemptEncryption</key>
 <false/>
 ```
 
-含义：只使用豁免类加密（系统 TLS、标准鉴权），不涉及自研 / 非豁免算法。**待办**：确认后加入 `project.yml` 的 `info.properties` 并重新生成。
+含义：只使用豁免类加密（系统 TLS、标准鉴权），不涉及自研 / 非豁免算法。已同步写入 `project.yml` 的 `info.properties` 与仓库内的 `Pills/Info.plist`，构建产物中该键为 `false`（已验证）。
 
-### 6.2 隐私清单（Privacy Manifest, `PrivacyInfo.xcprivacy`）
+### 6.2 隐私清单（Privacy Manifest, `PrivacyInfo.xcprivacy`）— ✅ 已落地（草稿，需复核）
 
-自 2024 年春季起，App Store 对新提交要求隐私清单。本 App 需要声明：
+自 2024 年春季起，App Store 对新提交要求隐私清单。已新建 `Pills/PrivacyInfo.xcprivacy` 并纳入 app target 的 Copy Bundle Resources（因本机未安装 xcodegen，直接手改 `project.pbxproj` 的 PBXFileReference / group / PBXBuildFile / Resources 段；已用模拟器构建验证 `.app` 内含该文件且 `plutil -lint` 通过）。清单内容依据现有代码：
 
-- **数据收集类型**：与 Sign in with Apple 关联的姓名 / 邮箱、健康与健身类数据（呼吸练习记录）、用户内容（AI 聊天消息）。
-- **必需原因 API（Required Reason API）**：若代码或依赖读取文件时间戳、磁盘空间、系统启动时间、键盘列表等，需声明对应 reason。当前 App 主要用 `UserDefaults` / SwiftData / Keychain，需逐项核对 Apple 公布的 API 清单。
-- **跟踪域名 / 第三方 SDK**：当前无第三方分析 SDK，若后端接入需补充。
+- **跟踪**：`NSPrivacyTracking=false`、`NSPrivacyTrackingDomains` 为空（无第三方分析 SDK）。
+- **数据收集类型**（均标记为 linked-to-user、非跟踪、用途 App Functionality）：姓名、邮箱、用户 ID（`User.displayName`/`username`/`appleUserIdentifier`）、健康与健身（`Session` 呼吸 / 练习记录）、其他用户内容（AI 聊天消息）。
+- **必需原因 API（Required Reason API）**：`NSPrivacyAccessedAPITypes` 为空。代码仅用 Keychain（`SecItem*`）与 SwiftData，无直接的 UserDefaults / 文件时间戳 / 磁盘空间 / 系统启动时间调用；SwiftData/CoreData 为系统框架，其内部调用不计入本 App 二进制。
 
-**待办**：新建 `Pills/PrivacyInfo.xcprivacy`，在 Xcode → target → Privacy 里编辑，或直接放一个 XML 清单文件并纳入 bundle。
+> ⚠️ 待复核（两处假设）：(1) 首次上传后 Apple 会自动扫描二进制，若收到“缺少 Required Reason API”邮件，据此补充 `NSPrivacyAccessedAPITypes`；(2) 邮箱一项按 Sign in with Apple 可能下发而声明，本地 `User` 只存姓名 / ID，需与后端实际收集项核对。最终须与 6.3 的营养标签保持一致。
 
 ### 6.3 App 隐私“营养标签”
 
@@ -197,11 +197,11 @@ xcodebuild build -project Pills.xcodeproj -scheme Pills \
 
 ---
 
-## 待办汇总（本次未执行）
+## 待办汇总
 
 1. 填入 Team ID：**已完成** — `G7T8643585` 已同步至 `project.yml` 与 `project.pbxproj`（三个 app target 配置），`xcodegen generate` 不会抹掉（见方案 B）。
-2. `Info.plist` 增加 `ITSAppUsesNonExemptEncryption=false`。
-3. 新建并填写 `PrivacyInfo.xcprivacy` 隐私清单。
-4. App Store Connect 填写隐私营养标签与元数据。
-5. 确认 AppIcon / LaunchImage 资源齐全。
-6. Release 归档 → 导出 IPA → 上传 → 绑定版本 → 提交审核。
+2. `Info.plist` 增加 `ITSAppUsesNonExemptEncryption=false`：**已完成**（`project.yml` + `Pills/Info.plist`，构建产物已验证）。
+3. 新建并填写 `PrivacyInfo.xcprivacy` 隐私清单：**已完成（草稿）** — 已纳入 bundle 并验证；两处假设待复核（见 6.2）。
+4. 确认 AppIcon / LaunchImage 资源齐全：**已确认** — AppIcon 为 1024×1024、无 alpha 通道；`LaunchImage` 资源存在。
+5. App Store Connect 填写隐私营养标签与元数据：**待办**（须与 6.2 清单一致）。
+6. Release 归档 → 导出 IPA → 上传 → 绑定版本 → 提交审核：**待办**。
