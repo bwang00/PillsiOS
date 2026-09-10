@@ -457,7 +457,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = G7T8643585;
 				INFOPLIST_FILE = Pills/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -469,7 +469,7 @@
 				PILLS_API_ENVIRONMENT = Development;
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -623,7 +623,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = G7T8643585;
 				INFOPLIST_FILE = Pills/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -635,7 +635,7 @@
 				PILLS_API_ENVIRONMENT = Production;
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -662,7 +662,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = G7T8643585;
 				INFOPLIST_FILE = Pills/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -674,7 +674,7 @@
 				PILLS_API_ENVIRONMENT = Staging;
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
 				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Staging;
 		};
