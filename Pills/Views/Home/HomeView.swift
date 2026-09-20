@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var viewModel: HomeViewModel?
     @State private var selectedGuide: Guide?
+    @State private var showSettings = false
     @State private var signOutError: String?
     @State private var showDeleteAccountConfirmation = false
     @State private var deleteAccountError: String?
@@ -33,6 +34,12 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Button {
+                            showSettings = true
+                        } label: {
+                            Label("设置", systemImage: "gearshape")
+                        }
+                        Divider()
                         Button(role: .destructive) {
                             Task {
                                 do {
@@ -89,6 +96,9 @@ struct HomeView: View {
                 Button("确定", role: .cancel) {}
             } message: {
                 Text(deleteAccountError ?? "")
+            }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
             .refreshable {
                 await viewModel?.loadData()
