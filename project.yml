@@ -59,7 +59,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: xyz.blueping.pills
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "5"
+        CURRENT_PROJECT_VERSION: "6"
         TARGETED_DEVICE_FAMILY: "1"
         DEVELOPMENT_TEAM: "G7T8643585"
         CODE_SIGN_STYLE: Automatic
@@ -71,7 +71,7 @@ targets:
         CFBundleDevelopmentRegion: zh_CN
         CFBundleDisplayName: Pills
         CFBundleShortVersionString: "1.0.0"
-        CFBundleVersion: "5"
+        CFBundleVersion: "6"
         PILLSAPIBaseURL: "$(PILLS_API_BASE_URL)"
         PILLSAPIEnvironment: "$(PILLS_API_ENVIRONMENT)"
         UILaunchScreen:
