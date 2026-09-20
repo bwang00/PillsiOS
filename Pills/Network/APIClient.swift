@@ -63,6 +63,13 @@ actor APIClient {
         try await get("/api/auth/me", authentication: .sessionValidation)
     }
 
+    func deleteAccount() async throws {
+        let _: [String: String] = try await postWithoutBody(
+            "/api/auth/delete-account",
+            authentication: .required
+        )
+    }
+
     func healthCheck() async throws -> Bool {
         let data: [String: String] = try await get("/api/health", authentication: .publicEndpoint)
         return data["status"] == "ok"

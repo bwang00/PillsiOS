@@ -68,6 +68,7 @@ struct AuthResponse: Decodable, Equatable, Sendable {
 protocol AuthAPIProtocol: Sendable {
     func exchangeAppleCredential(_ request: AppleAuthRequest) async throws -> AuthResponse
     func fetchCurrentUser() async throws -> AuthUserResponse
+    func deleteAccount() async throws
     func setAuthToken(_ token: String?) async
     func clearAuthToken(ifMatching token: String) async -> Bool
     func setUnauthorizedHandler(_ handler: (@Sendable (String) async -> Void)?) async

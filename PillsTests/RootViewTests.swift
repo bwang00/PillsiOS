@@ -27,6 +27,7 @@ private actor StubAuthAPI: AuthAPIProtocol {
     func setAuthToken(_ token: String?) async {}
     func clearAuthToken(ifMatching token: String) async -> Bool { true }
     func setUnauthorizedHandler(_ handler: (@Sendable (String) async -> Void)?) async {}
+    func deleteAccount() async throws {}
 }
 
 /// Token store whose `loadToken()` always throws, driving `AuthManager` into

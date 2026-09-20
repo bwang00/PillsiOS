@@ -15,6 +15,7 @@ final class AuthManager: ObservableObject {
     @Published private(set) var currentUser: User?
     @Published private(set) var state: State = .restoring
     @Published private(set) var authErrorMessage: String?
+    @Published private(set) var isDeletingAccount = false
 
     var isSigningIn: Bool { state == .signingIn }
 
@@ -190,6 +191,33 @@ final class AuthManager: ObservableObject {
         do {
             try await invalidateSession(generation: generation)
         } catch {
+            authErrorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
+    func deleteAccount() async throws {
+        guard !isDeletingAccount else { throw AuthError.accountDeletionAlreadyInProgress }
+        guard state != .signingIn else { throw AuthError.signInAlreadyInProgress }
+        guard modelContext != nil else { throw AuthError.notConfigured }
+
+        let generation = beginAuthOperation()
+        isDeletingAccount = true
+        defer { isDeletingAccount = false }
+
+        do {
+            do {
+                try await api.deleteAccount()
+            } catch {
+                guard isCurrentAuthOperation(generation) else { return }
+                // A 401 means the backend already considers the account gone;
+                // still finish local cleanup so the device returns to signedOut.
+                guard isUnauthorized(error) else { throw error }
+            }
+            guard isCurrentAuthOperation(generation) else { return }
+            try await invalidateSession(generation: generation)
+        } catch {
+            guard isCurrentAuthOperation(generation) else { return }
             authErrorMessage = error.localizedDescription
             throw error
         }
@@ -404,6 +432,7 @@ enum AuthError: LocalizedError, Equatable {
     case invalidCredential
     case notConfigured
     case signInAlreadyInProgress
+    case accountDeletionAlreadyInProgress
     case cleanupFailed(String)
 
     var errorDescription: String? {
@@ -414,6 +443,8 @@ enum AuthError: LocalizedError, Equatable {
             return "Authentication is not configured"
         case .signInAlreadyInProgress:
             return "Sign in is already in progress"
+        case .accountDeletionAlreadyInProgress:
+            return "Account deletion is already in progress"
         case .cleanupFailed(let detail):
             return "Authentication cleanup failed: \(detail)"
         }

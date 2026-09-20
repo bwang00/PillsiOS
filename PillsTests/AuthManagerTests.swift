@@ -52,6 +52,8 @@ private actor MockAuthAPI: AuthAPIProtocol {
     private(set) var configuredTokens: [String?] = []
     private(set) var exchangeRequests: [AppleAuthRequest] = []
     private(set) var currentUserCallCount = 0
+    private var deleteAccountResult: Result<Void, Error> = .success(())
+    private(set) var deleteAccountCallCount = 0
 
     init(
         exchangeResults: [Result<AuthResponse, Error>] = [],
@@ -138,6 +140,19 @@ private actor MockAuthAPI: AuthAPIProtocol {
 
     func recordedCurrentUserCallCount() -> Int {
         currentUserCallCount
+    }
+
+    func setDeleteAccountResult(_ result: Result<Void, Error>) {
+        deleteAccountResult = result
+    }
+
+    func deleteAccount() async throws {
+        deleteAccountCallCount += 1
+        try deleteAccountResult.get()
+    }
+
+    func recordedDeleteAccountCallCount() -> Int {
+        deleteAccountCallCount
     }
 }
 
@@ -856,6 +871,69 @@ final class AuthManagerTests: XCTestCase {
         XCTAssertEqual(store.token, "backend-token")
         XCTAssertEqual(try container.mainContext.fetch(FetchDescriptor<User>()).map(\.id), ["user-b"])
         XCTAssertEqual(try container.mainContext.fetch(FetchDescriptor<Session>()).map(\.id), ["user-b-session"])
+    }
+
+    func testDeleteAccountClearsSessionAndLocalCaches() async throws {
+        let response = authResponse(id: "backend-user", username: "alice", displayName: "Alice")
+        let provider = MockAppleSignInProvider(results: [.success(applePayload())])
+        let api = MockAuthAPI(exchangeResults: [.success(response)])
+        let manager = makeManager(provider: provider, api: api)
+        try await manager.configure(modelContext: container.mainContext)
+        try await manager.signInWithApple()
+        container.mainContext.insert(
+            Session(id: "doomed-session", guideSlug: "calm", startedAt: Date())
+        )
+        try container.mainContext.save()
+
+        try await manager.deleteAccount()
+
+        let callCount = await api.recordedDeleteAccountCallCount()
+        XCTAssertEqual(callCount, 1)
+        XCTAssertEqual(manager.state, .signedOut)
+        XCTAssertNil(manager.currentUser)
+        XCTAssertNil(try tokenStore.loadToken())
+        XCTAssertEqual(try container.mainContext.fetch(FetchDescriptor<User>()).count, 0)
+        XCTAssertEqual(try container.mainContext.fetch(FetchDescriptor<Session>()).count, 0)
+    }
+
+    func testDeleteAccountFailureKeepsSessionAndSurfacesError() async throws {
+        let response = authResponse(id: "backend-user", username: "alice", displayName: "Alice")
+        let provider = MockAppleSignInProvider(results: [.success(applePayload())])
+        let api = MockAuthAPI(exchangeResults: [.success(response)])
+        let manager = makeManager(provider: provider, api: api)
+        try await manager.configure(modelContext: container.mainContext)
+        try await manager.signInWithApple()
+        await api.setDeleteAccountResult(
+            .failure(APIError.httpError(statusCode: 500, body: "boom"))
+        )
+
+        do {
+            try await manager.deleteAccount()
+            XCTFail("deleteAccount should rethrow backend failures")
+        } catch {
+            XCTAssertEqual(error as? APIError, .httpError(statusCode: 500, body: "boom"))
+        }
+
+        XCTAssertEqual(manager.state, .signedIn)
+        XCTAssertEqual(manager.currentUser?.id, "backend-user")
+        XCTAssertEqual(try tokenStore.loadToken(), "backend-token")
+        XCTAssertNotNil(manager.authErrorMessage)
+    }
+
+    func testDeleteAccountTreatsUnauthorizedAsCompletedDeletion() async throws {
+        let response = authResponse(id: "backend-user", username: "alice", displayName: "Alice")
+        let provider = MockAppleSignInProvider(results: [.success(applePayload())])
+        let api = MockAuthAPI(exchangeResults: [.success(response)])
+        let manager = makeManager(provider: provider, api: api)
+        try await manager.configure(modelContext: container.mainContext)
+        try await manager.signInWithApple()
+        await api.setDeleteAccountResult(.failure(APIError.unauthorized))
+
+        try await manager.deleteAccount()
+
+        XCTAssertEqual(manager.state, .signedOut)
+        XCTAssertNil(manager.currentUser)
+        XCTAssertNil(try tokenStore.loadToken())
     }
 
     private func makeManager(

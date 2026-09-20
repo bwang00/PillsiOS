@@ -7,6 +7,8 @@ struct HomeView: View {
     @State private var viewModel: HomeViewModel?
     @State private var selectedGuide: Guide?
     @State private var signOutError: String?
+    @State private var showDeleteAccountConfirmation = false
+    @State private var deleteAccountError: String?
 
     var body: some View {
         NavigationStack {
@@ -30,19 +32,47 @@ struct HomeView: View {
             .navigationTitle("Pills")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .destructive) {
-                        Task {
-                            do {
-                                try await authManager.signOut()
-                            } catch {
-                                signOutError = error.localizedDescription
+                    Menu {
+                        Button(role: .destructive) {
+                            Task {
+                                do {
+                                    try await authManager.signOut()
+                                } catch {
+                                    signOutError = error.localizedDescription
+                                }
                             }
+                        } label: {
+                            Label("退出登录", systemImage: "rectangle.portrait.and.arrow.right")
                         }
+                        Button(role: .destructive) {
+                            showDeleteAccountConfirmation = true
+                        } label: {
+                            Label("删除账号", systemImage: "trash")
+                        }
+                        .disabled(authManager.isDeletingAccount)
                     } label: {
-                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                        Image(systemName: "person.crop.circle")
                     }
-                    .accessibilityLabel("退出登录")
+                    .accessibilityLabel("账号")
                 }
+            }
+            .confirmationDialog(
+                "删除账号",
+                isPresented: $showDeleteAccountConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("删除账号及全部数据", role: .destructive) {
+                    Task {
+                        do {
+                            try await authManager.deleteAccount()
+                        } catch {
+                            deleteAccountError = error.localizedDescription
+                        }
+                    }
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("将永久删除你的账号、练习记录与 AI 对话，且无法恢复。")
             }
             .alert("退出登录失败", isPresented: Binding(
                 get: { signOutError != nil },
@@ -51,6 +81,14 @@ struct HomeView: View {
                 Button("确定", role: .cancel) {}
             } message: {
                 Text(signOutError ?? "")
+            }
+            .alert("删除账号失败", isPresented: Binding(
+                get: { deleteAccountError != nil },
+                set: { if !$0 { deleteAccountError = nil } }
+            )) {
+                Button("确定", role: .cancel) {}
+            } message: {
+                Text(deleteAccountError ?? "")
             }
             .refreshable {
                 await viewModel?.loadData()
