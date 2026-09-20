@@ -28,6 +28,25 @@ settings:
       PILLS_API_ENVIRONMENT: Production
       PILLS_API_BASE_URL: "https://pills.blueping.xyz"
 
+schemes:
+  Pills:
+    build:
+      targets:
+        Pills: all
+        PillsTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - PillsTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
 targets:
   Pills:
     type: application
@@ -40,7 +59,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: xyz.blueping.pills
         MARKETING_VERSION: "1.0.0"
-        CURRENT_PROJECT_VERSION: "2"
+        CURRENT_PROJECT_VERSION: "5"
+        TARGETED_DEVICE_FAMILY: "1"
         DEVELOPMENT_TEAM: "G7T8643585"
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
@@ -51,7 +71,7 @@ targets:
         CFBundleDevelopmentRegion: zh_CN
         CFBundleDisplayName: Pills
         CFBundleShortVersionString: "1.0.0"
-        CFBundleVersion: "2"
+        CFBundleVersion: "5"
         PILLSAPIBaseURL: "$(PILLS_API_BASE_URL)"
         PILLSAPIEnvironment: "$(PILLS_API_ENVIRONMENT)"
         UILaunchScreen:

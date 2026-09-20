@@ -8,46 +8,48 @@
 
 /* Begin PBXBuildFile section */
 		094FC9B9E1CA9B81A8CC1437 /* PillsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E5195E2AD8EC2264FA8CE60 /* PillsApp.swift */; };
+		0EE6A64E1AC5600DEEC2B7E6 /* AIDataConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0983B19C05B8F77D4910596 /* AIDataConsentView.swift */; };
 		1006BBFD8E6DF34BEF7EECAA /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */; };
-		AA0000000000000000000001 /* AppleSignInProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000001 /* AppleSignInProvider.swift */; };
-		AA0000000000000000000002 /* AuthTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000002 /* AuthTokenStore.swift */; };
-		AA0000000000000000000003 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000003 /* AuthModels.swift */; };
-		AA0000000000000000000004 /* AppleSignInProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000004 /* AppleSignInProviderTests.swift */; };
-		AA0000000000000000000005 /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000005 /* APIClientTests.swift */; };
-		AA0000000000000000000006 /* KeychainAuthTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000006 /* KeychainAuthTokenStoreTests.swift */; };
 		1A4C12612B5B40D247400765 /* AuthManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */; };
 		1ED9D1036C1982F7F01D647E /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A56384C2979D44B40B98947 /* Guide.swift */; };
-		2474B72B85A44F1C8F63E113 /* BreathingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F2589D0467447EA93BDF29 /* BreathingViewModelTests.swift */; };
 		2848C5A88ABC5B7711F2FF0A /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E2D0FD8BECC29E7840C55D /* HistoryView.swift */; };
 		291C3614A9F4C578447B0C4D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E0C2646BBF3E76733E19F /* Session.swift */; };
-		A1B2C3D4E5F60718293A4B5C /* PendingSessionCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5D /* PendingSessionCompletion.swift */; };
 		29C3C235D438473FFB1417F2 /* BreathingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC88A31CEF9B519F98B24B8E /* BreathingView.swift */; };
 		447A89B957FCA250A0496F42 /* TTSPlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62FA3B9DC4532F7F85453B64 /* TTSPlayerTests.swift */; };
+		47647046BCB0413610E40161 /* AIDataConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F2F3F26C322380C47D9748 /* AIDataConsent.swift */; };
 		537D1CD99CCEC533D193AF85 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A42CDEE18D9263D31C15BCE /* HomeViewModel.swift */; };
+		58E8348D3A5AE8566AD659CA /* AppleSignInProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD97F45491BDC00D3ED0B2D6 /* AppleSignInProvider.swift */; };
+		63FFF4E8BE7258FBC2641FAA /* HomeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6876FD3E0B2A81DE8B39C79 /* HomeViewModelTests.swift */; };
+		6605ED46DFBE6ADACDE43D34 /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E3614C05DAC2A738F52D3D /* APIClientTests.swift */; };
 		6EB6F1CE4C60D6AD2F4C11BB /* APIErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */; };
 		7AE62F425D4B5367C285CD07 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F111F6BA3DF638F70ADD8C3 /* User.swift */; };
 		7B6E689B13BB4A8E3D26CD4C /* ChatViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */; };
 		7C615640ADB028591AF73516 /* BreathingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79778FC50F3A8F8F52B3C359 /* BreathingViewModel.swift */; };
+		7CB9CA27A56D0767FA80E898 /* AppleSignInProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 767535D5DDA943A762FBD1C2 /* AppleSignInProviderTests.swift */; };
 		7CE883B848CDDEC5374B4B45 /* HistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AE2D7C51DB7DCAEF34486D8 /* HistoryViewModel.swift */; };
 		93948072A769296532DDC062 /* MessageBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */; };
 		93C3B400EF4CD88EE0A228CE /* ChatViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163451010F3574A6297CC00E /* ChatViewTests.swift */; };
 		9C3359826B20FF04928E911F /* TTSPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3656900B340AF63454BA85B5 /* TTSPlayer.swift */; };
+		9EFCA06AE4204DC492992640 /* AuthTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5F5EB175445E24BD32CF88 /* AuthTokenStore.swift */; };
 		A0BC6DA31361E652053F64D1 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */; };
 		A370C3B3BFE1649EA5A41CF0 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0225A277439908B394745 /* APIClient.swift */; };
 		AD87F4C562C098CF01674C60 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */; };
+		BBC8523A7DE4FE99B5F67F3A /* PersistenceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26DFF25873F64AAE9B697B8A /* PersistenceModelTests.swift */; };
 		BC787313529F93F4581A2B24 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A904A77463CD7BD3B1394E38 /* ChatView.swift */; };
 		BD866C90FDC892AD542C595C /* GuideCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5D31B2725DDFF434B58109 /* GuideCard.swift */; };
 		BFA6BB544535D4B11DC054E7 /* HistoryViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */; };
-		F1E2D3C4B5A60718293A4B01 /* HomeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718293A4B02 /* HomeViewModelTests.swift */; };
-		F1E2D3C4B5A60718293A4B03 /* PersistenceModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718293A4B04 /* PersistenceModelTests.swift */; };
-		AA0000000000000000000137 /* RootViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0000000000000000000137 /* RootViewTests.swift */; };
+		C0887124887A5D33EC7A4C0E /* PendingSessionCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D47C4CF7BA9F5EAB4B328D9 /* PendingSessionCompletion.swift */; };
+		CBF054D4A356531462EEC9F7 /* BreathingViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C864E4A6555EB8A41B8565 /* BreathingViewModelTests.swift */; };
+		D47D70B5A1DD1033E2E15398 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 8F9994F7A0F14B77F47C4E31 /* PrivacyInfo.xcprivacy */; };
+		D6B8517CC9856B59D1508051 /* AuthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 115E1BB2B60D946847E88CEA /* AuthModels.swift */; };
 		DB0721311707A449A9E807B8 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728DC388AA76C4E0470F0BFA /* SignInView.swift */; };
 		DEC14015C58662C28FD408F6 /* OfflineBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C44CC0225A86B7068A9798 /* OfflineBanner.swift */; };
+		E6E2C7B74AF4B1108D53FB2E /* RootViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50DC82CED5721AB330FEF48 /* RootViewTests.swift */; };
 		EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4C7C94431546810939E3E823 /* Assets.xcassets */; };
-		FA11CE0FE11CE0FE11CE0F02 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FA11CE0FE11CE0FE11CE0F01 /* PrivacyInfo.xcprivacy */; };
 		EB4AC07AAB39C3FED3A0BB77 /* BreathingCircle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0520C179B5605E5897848454 /* BreathingCircle.swift */; };
 		F254DFAB830B635C94CBEBCF /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50126AC47D9E1AC02F29B660 /* AuthManager.swift */; };
 		F7583CC9C466990B4EA176E4 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B2042186DFECE65DEBC25A /* HomeView.swift */; };
+		FA8641DD83F4377271B5EFBD /* KeychainAuthTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580274B0C9E538BF294E63E0 /* KeychainAuthTokenStoreTests.swift */; };
 		FD99D87F711B02F7ABE096AF /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 460B88A5659B20DB5C9525CE /* MainTabView.swift */; };
 /* End PBXBuildFile section */
 
@@ -63,23 +65,19 @@
 
 /* Begin PBXFileReference section */
 		0520C179B5605E5897848454 /* BreathingCircle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingCircle.swift; sourceTree = "<group>"; };
+		115E1BB2B60D946847E88CEA /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
 		163451010F3574A6297CC00E /* ChatViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewTests.swift; sourceTree = "<group>"; };
-		BB0000000000000000000001 /* AppleSignInProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInProvider.swift; sourceTree = "<group>"; };
-		BB0000000000000000000002 /* AuthTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTokenStore.swift; sourceTree = "<group>"; };
-		BB0000000000000000000003 /* AuthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthModels.swift; sourceTree = "<group>"; };
-		BB0000000000000000000004 /* AppleSignInProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInProviderTests.swift; sourceTree = "<group>"; };
-		BB0000000000000000000005 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
-		BB0000000000000000000006 /* KeychainAuthTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAuthTokenStoreTests.swift; sourceTree = "<group>"; };
 		16E2D0FD8BECC29E7840C55D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		26DFF25873F64AAE9B697B8A /* PersistenceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceModelTests.swift; sourceTree = "<group>"; };
 		2E5195E2AD8EC2264FA8CE60 /* PillsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillsApp.swift; sourceTree = "<group>"; };
-		31F2589D0467447EA93BDF29 /* BreathingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingViewModelTests.swift; sourceTree = "<group>"; };
 		3656900B340AF63454BA85B5 /* TTSPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayer.swift; sourceTree = "<group>"; };
 		3A42CDEE18D9263D31C15BCE /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		460B88A5659B20DB5C9525CE /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		4C7C94431546810939E3E823 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		FA11CE0FE11CE0FE11CE0F01 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		50126AC47D9E1AC02F29B660 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		56C864E4A6555EB8A41B8565 /* BreathingViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingViewModelTests.swift; sourceTree = "<group>"; };
+		580274B0C9E538BF294E63E0 /* KeychainAuthTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAuthTokenStoreTests.swift; sourceTree = "<group>"; };
 		5A56384C2979D44B40B98947 /* Guide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Guide.swift; sourceTree = "<group>"; };
 		62B2042186DFECE65DEBC25A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		62FA3B9DC4532F7F85453B64 /* TTSPlayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSPlayerTests.swift; sourceTree = "<group>"; };
@@ -89,22 +87,28 @@
 		6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		6EAB68A20DEF0330A7B9EDE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		728DC388AA76C4E0470F0BFA /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		767535D5DDA943A762FBD1C2 /* AppleSignInProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInProviderTests.swift; sourceTree = "<group>"; };
 		79778FC50F3A8F8F52B3C359 /* BreathingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingViewModel.swift; sourceTree = "<group>"; };
+		7D47C4CF7BA9F5EAB4B328D9 /* PendingSessionCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingSessionCompletion.swift; sourceTree = "<group>"; };
 		7F111F6BA3DF638F70ADD8C3 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		8F9994F7A0F14B77F47C4E31 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManagerTests.swift; sourceTree = "<group>"; };
 		99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIErrorTests.swift; sourceTree = "<group>"; };
+		A6F2F3F26C322380C47D9748 /* AIDataConsent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIDataConsent.swift; sourceTree = "<group>"; };
 		A8A0225A277439908B394745 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		A904A77463CD7BD3B1394E38 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
 		B9FD5039D208ACB498917981 /* Pills.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Pills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		CB5F5EB175445E24BD32CF88 /* AuthTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTokenStore.swift; sourceTree = "<group>"; };
+		CD97F45491BDC00D3ED0B2D6 /* AppleSignInProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInProvider.swift; sourceTree = "<group>"; };
 		CE5D31B2725DDFF434B58109 /* GuideCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideCard.swift; sourceTree = "<group>"; };
+		E0983B19C05B8F77D4910596 /* AIDataConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIDataConsentView.swift; sourceTree = "<group>"; };
+		E6876FD3E0B2A81DE8B39C79 /* HomeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelTests.swift; sourceTree = "<group>"; };
 		ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModelTests.swift; sourceTree = "<group>"; };
-		F1E2D3C4B5A60718293A4B02 /* HomeViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelTests.swift; sourceTree = "<group>"; };
-		F1E2D3C4B5A60718293A4B04 /* PersistenceModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceModelTests.swift; sourceTree = "<group>"; };
-		BB0000000000000000000137 /* RootViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewTests.swift; sourceTree = "<group>"; };
 		F34E0C2646BBF3E76733E19F /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
-		C1D2E3F4A5B60718293A4B5D /* PendingSessionCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingSessionCompletion.swift; sourceTree = "<group>"; };
+		F4E3614C05DAC2A738F52D3D /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
+		F50DC82CED5721AB330FEF48 /* RootViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewTests.swift; sourceTree = "<group>"; };
 		F5CCD7C2CE9651970E68A1F9 /* Pills.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Pills.entitlements; sourceTree = "<group>"; };
 		F7AD9E8CD27D6D7F84B1CB62 /* PillsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PillsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC88A31CEF9B519F98B24B8E /* BreathingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreathingView.swift; sourceTree = "<group>"; };
@@ -123,10 +127,11 @@
 		327822B44AA92CFC469F7E59 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				BB0000000000000000000003 /* AuthModels.swift */,
+				A6F2F3F26C322380C47D9748 /* AIDataConsent.swift */,
+				115E1BB2B60D946847E88CEA /* AuthModels.swift */,
 				6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */,
 				5A56384C2979D44B40B98947 /* Guide.swift */,
-				C1D2E3F4A5B60718293A4B5D /* PendingSessionCompletion.swift */,
+				7D47C4CF7BA9F5EAB4B328D9 /* PendingSessionCompletion.swift */,
 				F34E0C2646BBF3E76733E19F /* Session.swift */,
 				7F111F6BA3DF638F70ADD8C3 /* User.swift */,
 			);
@@ -136,6 +141,7 @@
 		41232E58BFCB4DA8D3D7ED4B /* Chat */ = {
 			isa = PBXGroup;
 			children = (
+				E0983B19C05B8F77D4910596 /* AIDataConsentView.swift */,
 				A904A77463CD7BD3B1394E38 /* ChatView.swift */,
 				63E0E20D2BFFB205FAC6C207 /* MessageBubble.swift */,
 			);
@@ -153,9 +159,9 @@
 		5592DA14B68EA43304C7AC08 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
-				BB0000000000000000000001 /* AppleSignInProvider.swift */,
+				CD97F45491BDC00D3ED0B2D6 /* AppleSignInProvider.swift */,
 				50126AC47D9E1AC02F29B660 /* AuthManager.swift */,
-				BB0000000000000000000002 /* AuthTokenStore.swift */,
+				CB5F5EB175445E24BD32CF88 /* AuthTokenStore.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -191,28 +197,21 @@
 		84F9AFCD7B69CA9C501BD5E3 /* PillsTests */ = {
 			isa = PBXGroup;
 			children = (
-				BB0000000000000000000005 /* APIClientTests.swift */,
+				F4E3614C05DAC2A738F52D3D /* APIClientTests.swift */,
 				99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */,
-				BB0000000000000000000004 /* AppleSignInProviderTests.swift */,
+				767535D5DDA943A762FBD1C2 /* AppleSignInProviderTests.swift */,
 				94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */,
-				31F2589D0467447EA93BDF29 /* BreathingViewModelTests.swift */,
+				56C864E4A6555EB8A41B8565 /* BreathingViewModelTests.swift */,
 				B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */,
 				163451010F3574A6297CC00E /* ChatViewTests.swift */,
 				ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */,
-				F1E2D3C4B5A60718293A4B02 /* HomeViewModelTests.swift */,
-				BB0000000000000000000006 /* KeychainAuthTokenStoreTests.swift */,
-				F1E2D3C4B5A60718293A4B04 /* PersistenceModelTests.swift */,
-				BB0000000000000000000137 /* RootViewTests.swift */,
+				E6876FD3E0B2A81DE8B39C79 /* HomeViewModelTests.swift */,
+				580274B0C9E538BF294E63E0 /* KeychainAuthTokenStoreTests.swift */,
+				26DFF25873F64AAE9B697B8A /* PersistenceModelTests.swift */,
+				F50DC82CED5721AB330FEF48 /* RootViewTests.swift */,
 				62FA3B9DC4532F7F85453B64 /* TTSPlayerTests.swift */,
 			);
 			path = PillsTests;
-			sourceTree = "<group>";
-		};
-		8B57877301125AC0EAB326C3 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 		8F5C66C2C0933169B8E771AB /* App */ = {
@@ -248,13 +247,12 @@
 				5592DA14B68EA43304C7AC08 /* Auth */,
 				327822B44AA92CFC469F7E59 /* Models */,
 				C618D8C60EC3E958541F35D7 /* Network */,
-				8B57877301125AC0EAB326C3 /* Resources */,
 				6950ACC4A80E0FC1A1EC0F4B /* ViewModels */,
 				DDA5E5BAF5DF3444E283EF51 /* Views */,
 				4C7C94431546810939E3E823 /* Assets.xcassets */,
 				6EAB68A20DEF0330A7B9EDE8 /* Info.plist */,
-				FA11CE0FE11CE0FE11CE0F01 /* PrivacyInfo.xcprivacy */,
 				F5CCD7C2CE9651970E68A1F9 /* Pills.entitlements */,
+				8F9994F7A0F14B77F47C4E31 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Pills;
 			sourceTree = "<group>";
@@ -348,7 +346,8 @@
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					50D0F2C28FD74EFE11639937 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = G7T8643585;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -378,7 +377,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA9A6DB277DEC11C2FB04126 /* Assets.xcassets in Resources */,
-				FA11CE0FE11CE0FE11CE0F02 /* PrivacyInfo.xcprivacy in Resources */,
+				D47D70B5A1DD1033E2E15398 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,11 +388,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47647046BCB0413610E40161 /* AIDataConsent.swift in Sources */,
+				0EE6A64E1AC5600DEEC2B7E6 /* AIDataConsentView.swift in Sources */,
 				A370C3B3BFE1649EA5A41CF0 /* APIClient.swift in Sources */,
-				AA0000000000000000000001 /* AppleSignInProvider.swift in Sources */,
+				58E8348D3A5AE8566AD659CA /* AppleSignInProvider.swift in Sources */,
 				F254DFAB830B635C94CBEBCF /* AuthManager.swift in Sources */,
-				AA0000000000000000000003 /* AuthModels.swift in Sources */,
-				AA0000000000000000000002 /* AuthTokenStore.swift in Sources */,
+				D6B8517CC9856B59D1508051 /* AuthModels.swift in Sources */,
+				9EFCA06AE4204DC492992640 /* AuthTokenStore.swift in Sources */,
 				EB4AC07AAB39C3FED3A0BB77 /* BreathingCircle.swift in Sources */,
 				29C3C235D438473FFB1417F2 /* BreathingView.swift in Sources */,
 				7C615640ADB028591AF73516 /* BreathingViewModel.swift in Sources */,
@@ -410,8 +411,8 @@
 				93948072A769296532DDC062 /* MessageBubble.swift in Sources */,
 				1006BBFD8E6DF34BEF7EECAA /* NetworkMonitor.swift in Sources */,
 				DEC14015C58662C28FD408F6 /* OfflineBanner.swift in Sources */,
+				C0887124887A5D33EC7A4C0E /* PendingSessionCompletion.swift in Sources */,
 				094FC9B9E1CA9B81A8CC1437 /* PillsApp.swift in Sources */,
-				A1B2C3D4E5F60718293A4B5C /* PendingSessionCompletion.swift in Sources */,
 				291C3614A9F4C578447B0C4D /* Session.swift in Sources */,
 				DB0721311707A449A9E807B8 /* SignInView.swift in Sources */,
 				9C3359826B20FF04928E911F /* TTSPlayer.swift in Sources */,
@@ -423,18 +424,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0000000000000000000005 /* APIClientTests.swift in Sources */,
+				6605ED46DFBE6ADACDE43D34 /* APIClientTests.swift in Sources */,
 				6EB6F1CE4C60D6AD2F4C11BB /* APIErrorTests.swift in Sources */,
-				AA0000000000000000000004 /* AppleSignInProviderTests.swift in Sources */,
+				7CB9CA27A56D0767FA80E898 /* AppleSignInProviderTests.swift in Sources */,
 				1A4C12612B5B40D247400765 /* AuthManagerTests.swift in Sources */,
-				2474B72B85A44F1C8F63E113 /* BreathingViewModelTests.swift in Sources */,
+				CBF054D4A356531462EEC9F7 /* BreathingViewModelTests.swift in Sources */,
 				7B6E689B13BB4A8E3D26CD4C /* ChatViewModelTests.swift in Sources */,
 				93C3B400EF4CD88EE0A228CE /* ChatViewTests.swift in Sources */,
 				BFA6BB544535D4B11DC054E7 /* HistoryViewModelTests.swift in Sources */,
-				F1E2D3C4B5A60718293A4B01 /* HomeViewModelTests.swift in Sources */,
-				AA0000000000000000000006 /* KeychainAuthTokenStoreTests.swift in Sources */,
-				F1E2D3C4B5A60718293A4B03 /* PersistenceModelTests.swift in Sources */,
-				AA0000000000000000000137 /* RootViewTests.swift in Sources */,
+				63FFF4E8BE7258FBC2641FAA /* HomeViewModelTests.swift in Sources */,
+				FA8641DD83F4377271B5EFBD /* KeychainAuthTokenStoreTests.swift in Sources */,
+				BBC8523A7DE4FE99B5F67F3A /* PersistenceModelTests.swift in Sources */,
+				E6E2C7B74AF4B1108D53FB2E /* RootViewTests.swift in Sources */,
 				447A89B957FCA250A0496F42 /* TTSPlayerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -456,8 +457,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G7T8643585;
 				INFOPLIST_FILE = Pills/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -465,8 +467,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PILLS_API_BASE_URL = "http://127.0.0.1:8001";
-				PILLS_API_ENVIRONMENT = Development;
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -520,10 +520,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Pills/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PILLS_API_BASE_URL = "https://pills.blueping.xyz";
-				PILLS_API_ENVIRONMENT = Production;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				PILLS_API_BASE_URL = "https://pills.blueping.xyz";
+				PILLS_API_ENVIRONMENT = Production;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -586,11 +586,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Pills/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PILLS_API_BASE_URL = "http://127.0.0.1:8001";
-				PILLS_API_ENVIRONMENT = Development;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				PILLS_API_BASE_URL = "http://127.0.0.1:8001";
+				PILLS_API_ENVIRONMENT = Development;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -622,8 +622,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = G7T8643585;
 				INFOPLIST_FILE = Pills/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -631,13 +632,109 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PILLS_API_BASE_URL = "https://pills.blueping.xyz";
-				PILLS_API_ENVIRONMENT = Production;
 				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
+		};
+		C75D0D67DE243AD0841A453C /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pills";
+			};
+			name = Staging;
+		};
+		E9623094C3FAB7CB4D899488 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 5;
+				DEVELOPMENT_TEAM = G7T8643585;
+				INFOPLIST_FILE = Pills/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Staging;
+		};
+		EDF0E33F435DE7780E6CDBF7 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Pills/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PILLS_API_BASE_URL = "https://staging.pills.blueping.xyz";
+				PILLS_API_ENVIRONMENT = Staging;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Staging;
 		};
 		F19F2CE793BE2D7916344E3E /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -655,61 +752,6 @@
 			};
 			name = Release;
 		};
-		CC0000000000000000000001 /* Staging */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Pills/Pills.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = G7T8643585;
-				INFOPLIST_FILE = Pills/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0.0;
-				PILLS_API_BASE_URL = "https://staging.pills.blueping.xyz";
-				PILLS_API_ENVIRONMENT = Staging;
-				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Staging;
-		};
-		CC0000000000000000000002 /* Staging */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				INFOPLIST_FILE = Pills/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PILLS_API_BASE_URL = "https://staging.pills.blueping.xyz";
-				PILLS_API_ENVIRONMENT = Staging;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Staging;
-		};
-		CC0000000000000000000003 /* Staging */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = xyz.blueping.pills.tests;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pills.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Pills";
-			};
-			name = Staging;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -717,8 +759,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				04E8C4FBD0FEB9DFF7BFA32E /* Debug */,
-				CC0000000000000000000001 /* Staging */,
 				C3814A6E37D5B5E04B1B465A /* Release */,
+				E9623094C3FAB7CB4D899488 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -727,8 +769,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				762F4C1E1F3185E9612CD86D /* Debug */,
-				CC0000000000000000000003 /* Staging */,
 				F19F2CE793BE2D7916344E3E /* Release */,
+				C75D0D67DE243AD0841A453C /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -737,8 +779,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				72778B0E1F1D54B364177291 /* Debug */,
-				CC0000000000000000000002 /* Staging */,
 				32CCE3FC5CB8DB3851535190 /* Release */,
+				EDF0E33F435DE7780E6CDBF7 /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
