@@ -10,6 +10,7 @@ struct ChatView: View {
 
     @State private var viewModel: ChatViewModel?
     @State private var isRecording = false
+    @State private var showConsentSheet = false
     @State private var speechRecognizer: SpeechRecognizer?
     @State private var voiceError: String?
     @FocusState private var inputFocused: Bool
@@ -89,7 +90,18 @@ struct ChatView: View {
                 if viewModel == nil {
                     let vm = ChatViewModel(modelContext: modelContext)
                     viewModel = vm
+                    if vm.consentState == .notAsked {
+                        showConsentSheet = true
+                    }
                     await vm.loadOrCreateConversation()
+                }
+            }
+            .sheet(isPresented: $showConsentSheet) {
+                if let vm = viewModel {
+                    AIDataConsentView(
+                        onGrant: { vm.grantAIDataConsent() },
+                        onDeny: { vm.denyAIDataConsent() }
+                    )
                 }
             }
         }
@@ -145,6 +157,13 @@ struct ChatView: View {
                     .padding(.vertical, 6)
                     .background(.orange)
                     .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+            }
+
+            // Consent denied notice (guideline 5.1.1(i) / 5.1.2(i))
+            if let vm = viewModel, vm.consentState == .denied {
+                AIDataConsentDeniedNotice {
+                    showConsentSheet = true
+                }
             }
 
             HStack(spacing: 8) {
@@ -210,6 +229,12 @@ struct ChatView: View {
 
     private func sendMessageIfValid() {
         guard canSend else { return }
+        if let vm = viewModel, vm.requiresAIDataConsent {
+            if vm.consentState == .notAsked {
+                showConsentSheet = true
+            }
+            return
+        }
         inputFocused = false
         Task { await viewModel?.sendMessage() }
     }

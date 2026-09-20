@@ -58,8 +58,98 @@ final class ChatViewModelTests: XCTestCase {
         mockAPI = MockChatAPI()
     }
 
-    private func makeViewModel() -> ChatViewModel {
-        ChatViewModel(modelContext: container.mainContext, api: mockAPI)
+    private func makeViewModel(consentState: AIDataConsentState = .granted) -> ChatViewModel {
+        ChatViewModel(
+            modelContext: container.mainContext,
+            api: mockAPI,
+            consentStore: InMemoryAIDataConsentStore(initial: consentState)
+        )
+    }
+
+    // MARK: - AI data sharing consent gate (guideline 5.1.1(i) / 5.1.2(i))
+
+    func testSendMessageBlockedWhenConsentNotAsked() async {
+        let vm = makeViewModel(consentState: .notAsked)
+        vm.conversationId = "conv-1"
+        vm.inputText = "hello"
+
+        await vm.sendMessage()
+
+        XCTAssertTrue(vm.messages.isEmpty)
+        XCTAssertEqual(mockAPI.createConversationCallCount, 0)
+        XCTAssertEqual(mockAPI.sendMessageCallCount, 0)
+        XCTAssertEqual(mockAPI.sendAIChatCallCount, 0)
+        XCTAssertTrue(vm.requiresAIDataConsent)
+    }
+
+    func testSendMessageBlockedWhenConsentDenied() async {
+        let vm = makeViewModel(consentState: .denied)
+        vm.conversationId = "conv-1"
+        vm.inputText = "hello"
+
+        await vm.sendMessage()
+
+        XCTAssertTrue(vm.messages.isEmpty)
+        XCTAssertEqual(mockAPI.sendAIChatCallCount, 0)
+        XCTAssertTrue(vm.requiresAIDataConsent)
+    }
+
+    func testSendMessageAllowedWhenConsentGranted() async {
+        let vm = makeViewModel(consentState: .granted)
+        vm.conversationId = "conv-1"
+        vm.inputText = "hello"
+
+        await vm.sendMessage()
+
+        XCTAssertEqual(mockAPI.sendAIChatCallCount, 1)
+        XCTAssertFalse(vm.requiresAIDataConsent)
+    }
+
+    func testGrantConsentPersistsAcrossViewModels() async {
+        let store = InMemoryAIDataConsentStore(initial: .notAsked)
+        let vm = ChatViewModel(modelContext: container.mainContext, api: mockAPI, consentStore: store)
+        XCTAssertTrue(vm.requiresAIDataConsent)
+
+        vm.grantAIDataConsent()
+
+        let vm2 = ChatViewModel(modelContext: container.mainContext, api: mockAPI, consentStore: store)
+        XCTAssertFalse(vm2.requiresAIDataConsent)
+        XCTAssertEqual(vm2.consentState, .granted)
+
+        vm2.conversationId = "conv-1"
+        vm2.inputText = "hello"
+        await vm2.sendMessage()
+        XCTAssertEqual(mockAPI.sendAIChatCallCount, 1)
+    }
+
+    func testDenyConsentPersistsAndBlocks() {
+        let store = InMemoryAIDataConsentStore(initial: .notAsked)
+        let vm = ChatViewModel(modelContext: container.mainContext, api: mockAPI, consentStore: store)
+
+        vm.denyAIDataConsent()
+
+        let vm2 = ChatViewModel(modelContext: container.mainContext, api: mockAPI, consentStore: store)
+        XCTAssertEqual(vm2.consentState, .denied)
+        XCTAssertTrue(vm2.requiresAIDataConsent)
+    }
+
+    func testUserDefaultsConsentStoreRoundTrip() {
+        let defaults = UserDefaults(suiteName: "AIDataConsentStoreTests")!
+        defaults.removeObject(forKey: UserDefaultsAIDataConsentStore.key)
+        let store = UserDefaultsAIDataConsentStore(defaults: defaults)
+        XCTAssertEqual(store.currentState(), .notAsked)
+
+        store.save(.granted)
+        XCTAssertEqual(store.currentState(), .granted)
+
+        store.save(.denied)
+        XCTAssertEqual(store.currentState(), .denied)
+
+        defaults.set("garbage", forKey: UserDefaultsAIDataConsentStore.key)
+        XCTAssertEqual(store.currentState(), .notAsked)
+
+        defaults.removeObject(forKey: UserDefaultsAIDataConsentStore.key)
+        defaults.removePersistentDomain(forName: "AIDataConsentStoreTests")
     }
 
     func testCreateNewConversationSuccess() async {

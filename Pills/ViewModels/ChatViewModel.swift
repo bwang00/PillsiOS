@@ -20,9 +20,15 @@ final class ChatViewModel {
     var isSending = false
     var errorMessage: String?
     var conversationId: String?
+    private(set) var consentState: AIDataConsentState
 
     private let modelContext: ModelContext
     private let api: ChatAPIProtocol
+    private let consentStore: AIDataConsentStore
+
+    /// True until the user explicitly permits sharing their messages with the
+    /// third-party AI services (guideline 5.1.1(i) / 5.1.2(i)).
+    var requiresAIDataConsent: Bool { consentState != .granted }
 
     struct ChatMessageItem: Identifiable {
         let id: String
@@ -31,9 +37,25 @@ final class ChatViewModel {
         let timestamp: Date
     }
 
-    init(modelContext: ModelContext, api: ChatAPIProtocol = APIClient.shared) {
+    init(
+        modelContext: ModelContext,
+        api: ChatAPIProtocol = APIClient.shared,
+        consentStore: AIDataConsentStore = UserDefaultsAIDataConsentStore()
+    ) {
         self.modelContext = modelContext
         self.api = api
+        self.consentStore = consentStore
+        self.consentState = consentStore.currentState()
+    }
+
+    func grantAIDataConsent() {
+        consentState = .granted
+        consentStore.save(.granted)
+    }
+
+    func denyAIDataConsent() {
+        consentState = .denied
+        consentStore.save(.denied)
     }
 
     func loadOrCreateConversation() async {
@@ -82,6 +104,7 @@ final class ChatViewModel {
     func sendMessage() async {
         let text = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        guard !requiresAIDataConsent else { return }
 
         if conversationId == nil {
             await createNewConversation()
