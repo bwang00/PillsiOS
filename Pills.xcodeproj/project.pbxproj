@@ -12,6 +12,7 @@
 		1006BBFD8E6DF34BEF7EECAA /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B2EE0F8F1AF7F8A03C0262 /* NetworkMonitor.swift */; };
 		1A4C12612B5B40D247400765 /* AuthManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */; };
 		1ED9D1036C1982F7F01D647E /* Guide.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A56384C2979D44B40B98947 /* Guide.swift */; };
+		22D6D00C6495A0CFDE3660C2 /* HapticPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69871A6B406058A42D76BFF /* HapticPlayer.swift */; };
 		2848C5A88ABC5B7711F2FF0A /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E2D0FD8BECC29E7840C55D /* HistoryView.swift */; };
 		291C3614A9F4C578447B0C4D /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = F34E0C2646BBF3E76733E19F /* Session.swift */; };
 		29C3C235D438473FFB1417F2 /* BreathingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC88A31CEF9B519F98B24B8E /* BreathingView.swift */; };
@@ -105,6 +106,7 @@
 		B5B1E6735B878D3EA827CC2E /* ChatViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModelTests.swift; sourceTree = "<group>"; };
 		B9FD5039D208ACB498917981 /* Pills.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Pills.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		C69871A6B406058A42D76BFF /* HapticPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticPlayer.swift; sourceTree = "<group>"; };
 		CB5F5EB175445E24BD32CF88 /* AuthTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthTokenStore.swift; sourceTree = "<group>"; };
 		CD97F45491BDC00D3ED0B2D6 /* AppleSignInProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInProvider.swift; sourceTree = "<group>"; };
 		CE5D31B2725DDFF434B58109 /* GuideCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideCard.swift; sourceTree = "<group>"; };
@@ -184,6 +186,7 @@
 		59E9CD170C82A1152D3F85E8 /* Audio */ = {
 			isa = PBXGroup;
 			children = (
+				C69871A6B406058A42D76BFF /* HapticPlayer.swift */,
 				3656900B340AF63454BA85B5 /* TTSPlayer.swift */,
 			);
 			path = Audio;
@@ -421,6 +424,7 @@
 				A0BC6DA31361E652053F64D1 /* Conversation.swift in Sources */,
 				1ED9D1036C1982F7F01D647E /* Guide.swift in Sources */,
 				BD866C90FDC892AD542C595C /* GuideCard.swift in Sources */,
+				22D6D00C6495A0CFDE3660C2 /* HapticPlayer.swift in Sources */,
 				2848C5A88ABC5B7711F2FF0A /* HistoryView.swift in Sources */,
 				7CE883B848CDDEC5374B4B45 /* HistoryViewModel.swift in Sources */,
 				F7583CC9C466990B4EA176E4 /* HomeView.swift in Sources */,
