@@ -181,3 +181,50 @@ final class PersistenceModelTests: XCTestCase {
         XCTAssertEqual(session.startedAt, original, "Unparseable started_at must not clobber the cached value")
     }
 }
+
+/// Covers decoding of the butterfly hug (bilateral tap) guide config and the
+/// routing/rendering flags derived from it.
+final class ButterflyGuideConfigTests: XCTestCase {
+
+    private func makeGuide(configJSON: String) -> Guide {
+        Guide(
+            id: UUID().uuidString,
+            slug: "test-guide",
+            category: "grounding",
+            title: "Test",
+            summary: "",
+            sortOrder: 0,
+            isActive: true,
+            configJSON: configJSON
+        )
+    }
+
+    func test_butterflyConfig_decodesFromBilateralTapMode() {
+        let guide = makeGuide(configJSON:
+            #"{"mode":"bilateral_tap","tap_interval":1.0,"default_duration":60,"min_duration":15}"#)
+        let config = guide.butterfly
+        XCTAssertEqual(config, ButterflyConfig(tapInterval: 1.0, defaultDuration: 60, minDuration: 15))
+        XCTAssertTrue(guide.isButterflyHug)
+        XCTAssertTrue(guide.isRenderable)
+    }
+
+    func test_butterflyConfig_appliesDefaultsWhenFieldsMissing() {
+        let guide = makeGuide(configJSON: #"{"mode":"bilateral_tap"}"#)
+        XCTAssertEqual(guide.butterfly, ButterflyConfig(tapInterval: 1.0, defaultDuration: 60, minDuration: 15))
+    }
+
+    func test_breathingGuide_isNotButterflyHug_butIsRenderable() {
+        let guide = makeGuide(configJSON: #"{"phases":[{"name":"吸气","duration":4}]}"#)
+        XCTAssertNil(guide.butterfly)
+        XCTAssertFalse(guide.isButterflyHug)
+        XCTAssertTrue(guide.isRenderable)
+    }
+
+    func test_stepsOnlyGuide_isNotRenderable() {
+        let guide = makeGuide(configJSON:
+            #"{"steps":[{"sense":"视觉","count":5,"prompt":"x"}]}"#)
+        XCTAssertNil(guide.butterfly)
+        XCTAssertFalse(guide.isButterflyHug)
+        XCTAssertFalse(guide.isRenderable)
+    }
+}
