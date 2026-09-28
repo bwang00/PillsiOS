@@ -7,6 +7,12 @@ import SwiftData
 final class MockHomeAPI: HomeAPIProtocol, @unchecked Sendable {
     var guidesResult: Result<[GuideDTO], Error> = .success([])
     var sessionsResult: Result<[SessionDTO], Error> = .success([])
+    /// When non-empty, `fetchGuides` branches on the requested category and
+    /// returns `guidesByCategory[category] ?? []`. When empty, the mock falls
+    /// back to `guidesResult` so pre-existing category-agnostic tests keep working.
+    var guidesByCategory: [String: [GuideDTO]] = [:]
+    /// Every category passed to `fetchGuides`, in request order.
+    private(set) var requestedCategories: [String] = []
     var fetchGuidesCallCount = 0
     var fetchSessionsCallCount = 0
     var lastGuideCategory: String?
@@ -16,6 +22,10 @@ final class MockHomeAPI: HomeAPIProtocol, @unchecked Sendable {
     func fetchGuides(category: String?) async throws -> [GuideDTO] {
         fetchGuidesCallCount += 1
         lastGuideCategory = category
+        if let category { requestedCategories.append(category) }
+        if !guidesByCategory.isEmpty {
+            return guidesByCategory[category ?? ""] ?? []
+        }
         return try guidesResult.get()
     }
 
@@ -82,7 +92,7 @@ final class HomeViewModelTests: XCTestCase {
         title: String = "4-7-8 呼吸法",
         sortOrder: Int = 1,
         active: Bool = true,
-        phases: [GuideConfig.BreathPhase]? = nil
+        phases: [GuideConfig.BreathPhase]? = [GuideConfig.BreathPhase(name: "吸气", duration: 4)]
     ) -> GuideDTO {
         GuideDTO(
             id: id,
@@ -138,9 +148,45 @@ final class HomeViewModelTests: XCTestCase {
 
         await vm.loadData()
 
-        XCTAssertEqual(mockAPI.lastGuideCategory, "breathing")
+        XCTAssertTrue(mockAPI.requestedCategories.contains("breathing"))
         XCTAssertEqual(mockAPI.lastSessionLimit, 5)
         XCTAssertEqual(mockAPI.lastSessionOffset, 0)
+    }
+
+    func test_loadData_fetchesBreathingAndGrounding_andListsOnlyRenderable() async {
+        // Arrange: mock returns one breathing guide, one butterfly guide, one steps-only guide.
+        let breathing = GuideDTO(
+            id: "b1", slug: "breathing-478", title: "4-7-8", description: "",
+            category: "breathing", sort_order: 1, active: true,
+            config: GuideConfig(phases: [GuideConfig.BreathPhase(name: "吸气", duration: 4)],
+                                steps: nil, mode: nil, tap_interval: nil,
+                                default_duration: nil, min_duration: nil))
+        let butterfly = GuideDTO(
+            id: "g9", slug: "grounding-butterfly-hug", title: "蝴蝶拥抱", description: "",
+            category: "grounding", sort_order: 9, active: true,
+            config: GuideConfig(phases: nil, steps: nil, mode: "bilateral_tap",
+                                tap_interval: 1.0, default_duration: 60, min_duration: 15))
+        let stepsOnly = GuideDTO(
+            id: "g3", slug: "grounding-54321", title: "5-4-3-2-1", description: "",
+            category: "grounding", sort_order: 3, active: true,
+            config: GuideConfig(phases: nil,
+                                steps: [GuideConfig.GuideStep(sense: "视觉", count: 5, prompt: "x",
+                                                              body_part: nil, tense_duration: nil,
+                                                              relax_duration: nil, tense_prompt: nil,
+                                                              relax_prompt: nil)],
+                                mode: nil, tap_interval: nil, default_duration: nil, min_duration: nil))
+
+        let api = MockHomeAPI()
+        api.guidesByCategory = ["breathing": [breathing], "grounding": [butterfly, stepsOnly]]
+
+        let vm = HomeViewModel(modelContext: container.mainContext, api: api)
+        await vm.loadData()
+
+        let slugs = Set(vm.guides.map { $0.slug })
+        XCTAssertTrue(slugs.contains("breathing-478"))
+        XCTAssertTrue(slugs.contains("grounding-butterfly-hug"))
+        XCTAssertFalse(slugs.contains("grounding-54321"), "steps-only guide must not be listed yet")
+        XCTAssertEqual(Set(api.requestedCategories), ["breathing", "grounding"])
     }
 
     func testLoadData_filtersInactiveAndOtherCategoryGuides() async {
@@ -222,7 +268,8 @@ final class HomeViewModelTests: XCTestCase {
         // Seed cache with an active breathing guide.
         container.mainContext.insert(Guide(
             id: "g1", slug: "4-7-8-breathing", category: "breathing",
-            title: "4-7-8 呼吸法", summary: "d", sortOrder: 1, isActive: true, configJSON: "{}"
+            title: "4-7-8 呼吸法", summary: "d", sortOrder: 1, isActive: true,
+            configJSON: #"{"phases":[{"name":"吸气","duration":4}]}"#
         ))
         try container.mainContext.save()
 

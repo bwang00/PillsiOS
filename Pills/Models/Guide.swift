@@ -52,6 +52,28 @@ struct GuideDTO: Codable {
 struct GuideConfig: Codable {
     let phases: [BreathPhase]?
     let steps: [GuideStep]?
+    // Butterfly hug (bilateral tap) config. Additive + optional so existing
+    // breathing/steps configs decode unchanged.
+    let mode: String?
+    let tap_interval: Double?
+    let default_duration: Int?
+    let min_duration: Int?
+
+    init(
+        phases: [BreathPhase]? = nil,
+        steps: [GuideStep]? = nil,
+        mode: String? = nil,
+        tap_interval: Double? = nil,
+        default_duration: Int? = nil,
+        min_duration: Int? = nil
+    ) {
+        self.phases = phases
+        self.steps = steps
+        self.mode = mode
+        self.tap_interval = tap_interval
+        self.default_duration = default_duration
+        self.min_duration = min_duration
+    }
 
     struct BreathPhase: Codable {
         let name: String     // Chinese: "吸气", "闭气", "呼气"
@@ -68,6 +90,13 @@ struct GuideConfig: Codable {
         let tense_prompt: String?
         let relax_prompt: String?
     }
+}
+
+/// Decoded, defaulted configuration for the butterfly hug exercise.
+struct ButterflyConfig: Equatable {
+    let tapInterval: Double
+    let defaultDuration: Int
+    let minDuration: Int
 }
 
 // MARK: - DTO → Model
@@ -88,12 +117,30 @@ extension Guide {
         )
     }
 
-    var phases: [GuideConfig.BreathPhase] {
-        guard let data = configJSON.data(using: .utf8),
-              let config = try? JSONDecoder().decode(GuideConfig.self, from: data)
-        else { return [] }
-        return config.phases ?? []
+    private var decodedConfig: GuideConfig? {
+        guard let data = configJSON.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(GuideConfig.self, from: data)
     }
+
+    var phases: [GuideConfig.BreathPhase] {
+        decodedConfig?.phases ?? []
+    }
+
+    /// Non-nil only for the bilateral-tap butterfly hug guide.
+    var butterfly: ButterflyConfig? {
+        guard let config = decodedConfig, config.mode == "bilateral_tap" else { return nil }
+        return ButterflyConfig(
+            tapInterval: config.tap_interval ?? 1.0,
+            defaultDuration: config.default_duration ?? 60,
+            minDuration: config.min_duration ?? 15
+        )
+    }
+
+    var isButterflyHug: Bool { butterfly != nil }
+
+    /// A guide the client can actually render: breathing phases OR butterfly hug.
+    /// Steps-only guides (e.g. grounding-54321) are not yet renderable.
+    var isRenderable: Bool { !phases.isEmpty || isButterflyHug }
 
     /// Estimated total duration in seconds from phase config
     var estimatedDuration: Int {
