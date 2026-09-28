@@ -17,7 +17,7 @@ struct MainTabView: View {
 
             ChatView()
                 .tabItem {
-                    Label("AI 教练", systemImage: "bubble.left.and.bubble.right.fill")
+                    Label("AI 对话", systemImage: "bubble.left.and.bubble.right.fill")
                 }
                 .tag(1)
 

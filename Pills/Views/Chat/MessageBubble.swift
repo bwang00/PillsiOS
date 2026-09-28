@@ -15,7 +15,7 @@ struct MessageBubble: View {
     }()
 
     private var accessibilityMessageLabel: String {
-        let speaker = isUser ? "我" : "AI 教练"
+        let speaker = isUser ? "我" : "AI 对话"
         let time = Self.timeFormatter.string(from: message.timestamp)
         return "\(speaker): \(message.content)，\(time)"
     }

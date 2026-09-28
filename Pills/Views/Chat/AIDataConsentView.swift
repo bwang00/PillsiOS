@@ -13,13 +13,13 @@ struct AIDataConsentView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("在使用 AI 教练前，请了解并选择是否同意以下数据分享：")
+                    Text("在使用 AI 对话前，请了解并选择是否同意以下数据分享：")
                         .font(.body)
 
                     disclosureRow(
                         icon: "text.bubble",
                         title: "发送什么",
-                        detail: "你发送给 AI 教练的消息文字（如使用语音输入，则为语音转写后的文字）。"
+                        detail: "你发送给 AI 对话的消息文字（如使用语音输入，则为语音转写后的文字）。"
                     )
                     disclosureRow(
                         icon: "arrow.up.forward.app",
@@ -29,7 +29,7 @@ struct AIDataConsentView: View {
                     disclosureRow(
                         icon: "sparkles",
                         title: "用途",
-                        detail: "仅用于生成 AI 教练的回复与语音播报，不用于广告或追踪。"
+                        detail: "仅用于生成 AI 对话的回复与语音播报，不用于广告或追踪。"
                     )
 
                     Link(destination: URL(string: "https://pills.blueping.xyz/privacy")!) {
@@ -38,10 +38,10 @@ struct AIDataConsentView: View {
 
                     Divider()
 
-                    Text("Before using the AI coach, please review and choose whether to allow the following data sharing:")
+                    Text("Before using AI Chat, please review and choose whether to allow the following data sharing:")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                    Text("What is sent: the text of your messages to the AI coach (or the speech-to-text transcript if you use voice input). Who receives it: our server (pills.blueping.xyz), which forwards it to Alibaba Cloud Qwen (DashScope) to generate the reply; the reply text is sent to Microsoft edge-tts for speech synthesis. Purpose: generating the AI coach's reply and spoken output only — never for advertising or tracking. Full details are in our Privacy Policy.")
+                    Text("What is sent: the text of your messages to AI Chat (or the speech-to-text transcript if you use voice input). Who receives it: our server (pills.blueping.xyz), which forwards it to Alibaba Cloud Qwen (DashScope) to generate the reply; the reply text is sent to Microsoft edge-tts for speech synthesis. Purpose: generating AI Chat's reply and spoken output only — never for advertising or tracking. Full details are in our Privacy Policy.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
 
@@ -97,9 +97,9 @@ struct AIDataConsentDeniedNotice: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("你未同意向第三方 AI 服务发送内容，AI 教练不会发送任何消息。")
+            Text("你未同意向第三方 AI 服务发送内容，AI 对话不会发送任何消息。")
                 .font(.footnote)
-            Text("You have not allowed sharing with the third-party AI services, so the AI coach will not send any content.")
+            Text("You have not allowed sharing with the third-party AI services, so AI Chat will not send any content.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             Button("重新查看披露并选择", action: onReview)

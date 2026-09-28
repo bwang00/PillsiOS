@@ -150,7 +150,7 @@ App 使用 HTTPS / Sign in with Apple 等标准加密。为避免每次提交都
 
 `Info.plist` 已有：
 
-- `NSMicrophoneUsageDescription` — “用于语音输入，将语音转换为文字发送给 AI 教练”
+- `NSMicrophoneUsageDescription` — “用于语音输入，将语音转换为文字发送给 AI 对话”
 - `NSSpeechRecognitionUsageDescription` — 同上
 
 审核会核对文案与实际用途是否相符；当前语音输入功能确实用到麦克风 + 语音识别，文案合规。**无需改动**，仅复核。

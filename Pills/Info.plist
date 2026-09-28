@@ -23,9 +23,9 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
+	<string>用于语音输入，将语音转换为文字发送给 AI 对话</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>用于语音输入，将语音转换为文字发送给 AI 教练</string>
+	<string>用于语音输入，将语音转换为文字发送给 AI 对话</string>
 	<key>PILLSAPIBaseURL</key>
 	<string>$(PILLS_API_BASE_URL)</string>
 	<key>PILLSAPIEnvironment</key>

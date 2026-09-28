@@ -302,7 +302,7 @@ final class RootViewTests: XCTestCase {
 
         XCTAssertTrue(tree.hasTabBar, "main tab bar missing; classes=\(tree.classNames.sorted())")
         XCTAssertTrue(tree.contains("首页"), "home tab missing; got \(tree.strings.sorted())")
-        XCTAssertTrue(tree.contains("AI 教练"), "chat tab missing; got \(tree.strings.sorted())")
+        XCTAssertTrue(tree.contains("AI 对话"), "chat tab missing; got \(tree.strings.sorted())")
         XCTAssertTrue(tree.contains("记录"), "history tab missing; got \(tree.strings.sorted())")
         XCTAssertTrue(
             tree.contains("Pills"),

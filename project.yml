@@ -82,8 +82,8 @@ targets:
         UIRequiresFullScreen: true
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
-        NSMicrophoneUsageDescription: "用于语音输入，将语音转换为文字发送给 AI 教练"
-        NSSpeechRecognitionUsageDescription: "用于语音输入，将语音转换为文字发送给 AI 教练"
+        NSMicrophoneUsageDescription: "用于语音输入，将语音转换为文字发送给 AI 对话"
+        NSSpeechRecognitionUsageDescription: "用于语音输入，将语音转换为文字发送给 AI 对话"
         ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: Pills/Pills.entitlements

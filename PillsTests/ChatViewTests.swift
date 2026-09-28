@@ -120,7 +120,7 @@ final class ChatViewTests: XCTestCase {
 
     func testMessageBubble_aiMessage() {
         let msg = ChatViewModel.ChatMessageItem(
-            id: "2", role: "assistant", content: "你好！我是你的AI教练。", timestamp: Date()
+            id: "2", role: "assistant", content: "你好！我是你的AI对话伙伴。", timestamp: Date()
         )
         let bubble = MessageBubble(message: msg)
         let controller = UIHostingController(rootView: bubble)

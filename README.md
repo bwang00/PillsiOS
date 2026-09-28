@@ -1,6 +1,6 @@
 # Pills iOS
 
-Native SwiftUI app for the Pills wellness platform — breathing exercises and AI chat coach.
+Native SwiftUI app for the Pills wellness platform — breathing exercises and AI Chat.
 
 ## Requirements
 

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// A conversation with the AI coach.
+/// A conversation with AI Chat.
 @Model
 final class Conversation {
     @Attribute(.unique) var id: String

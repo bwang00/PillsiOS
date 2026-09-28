@@ -67,7 +67,7 @@ struct ChatView: View {
                     scrollToBottom(proxy: proxy)
                 }
             }
-            .navigationTitle("AI 教练")
+            .navigationTitle("AI 对话")
             .navigationBarTitleDisplayMode(.inline)
             .offlineBanner {
                 Task { await viewModel?.loadOrCreateConversation() }
@@ -342,7 +342,7 @@ struct ChatWelcomeView: View {
                 .accessibilityHidden(true)
 
             VStack(spacing: 8) {
-                Text("你好，我是你的 AI 教练")
+                Text("你好，我是你的 AI 对话伙伴")
                     .font(.title3)
                     .fontWeight(.semibold)
 
