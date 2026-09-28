@@ -11,6 +11,12 @@ struct HomeView: View {
     @State private var showDeleteAccountConfirmation = false
     @State private var deleteAccountError: String?
 
+    /// Routing decision extracted for testability: butterfly hug guides open the
+    /// dedicated tapping view; everything else uses the breathing player.
+    static func showsButterflyHug(for guide: Guide) -> Bool {
+        guide.isButterflyHug
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -114,7 +120,11 @@ struct HomeView: View {
                 }
             }
             .navigationDestination(item: $selectedGuide) { guide in
-                BreathingView(guide: guide)
+                if Self.showsButterflyHug(for: guide) {
+                    ButterflyHugView(guide: guide)
+                } else {
+                    BreathingView(guide: guide)
+                }
             }
         }
     }

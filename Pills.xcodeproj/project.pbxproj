@@ -38,6 +38,7 @@
 		9EFCA06AE4204DC492992640 /* AuthTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB5F5EB175445E24BD32CF88 /* AuthTokenStore.swift */; };
 		A0BC6DA31361E652053F64D1 /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFC6CE5A4747631EF0DA2F9 /* Conversation.swift */; };
 		A370C3B3BFE1649EA5A41CF0 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8A0225A277439908B394745 /* APIClient.swift */; };
+		A9EF3DE39FBC544F1CE8632E /* HomeViewRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA0AB4D417F144EB1F46BB7 /* HomeViewRoutingTests.swift */; };
 		AD87F4C562C098CF01674C60 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC2284D1A5A9E8FD8D8F93F /* ChatViewModel.swift */; };
 		B1BCA7A3BC2CA956A3CE1B02 /* ButterflyHugViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED13B9B6D69E236E4FE704EC /* ButterflyHugViewModelTests.swift */; };
 		B1C47A755454032577BD81FF /* ButterflyHugViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36DF8A82AF7537304CC3860D /* ButterflyHugViewTests.swift */; };
@@ -106,6 +107,7 @@
 		94600D69DA32F8715D13BEF9 /* AuthManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManagerTests.swift; sourceTree = "<group>"; };
 		98E8CEED2832FC3D21CDD8A4 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		99B9C97F454FABCBFAE46D1F /* APIErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIErrorTests.swift; sourceTree = "<group>"; };
+		9CA0AB4D417F144EB1F46BB7 /* HomeViewRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewRoutingTests.swift; sourceTree = "<group>"; };
 		A6F2F3F26C322380C47D9748 /* AIDataConsent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIDataConsent.swift; sourceTree = "<group>"; };
 		A8A0225A277439908B394745 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		A904A77463CD7BD3B1394E38 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				163451010F3574A6297CC00E /* ChatViewTests.swift */,
 				ED446C73D2D63A80C4A58308 /* HistoryViewModelTests.swift */,
 				E6876FD3E0B2A81DE8B39C79 /* HomeViewModelTests.swift */,
+				9CA0AB4D417F144EB1F46BB7 /* HomeViewRoutingTests.swift */,
 				580274B0C9E538BF294E63E0 /* KeychainAuthTokenStoreTests.swift */,
 				26DFF25873F64AAE9B697B8A /* PersistenceModelTests.swift */,
 				F50DC82CED5721AB330FEF48 /* RootViewTests.swift */,
@@ -472,6 +475,7 @@
 				93C3B400EF4CD88EE0A228CE /* ChatViewTests.swift in Sources */,
 				BFA6BB544535D4B11DC054E7 /* HistoryViewModelTests.swift in Sources */,
 				63FFF4E8BE7258FBC2641FAA /* HomeViewModelTests.swift in Sources */,
+				A9EF3DE39FBC544F1CE8632E /* HomeViewRoutingTests.swift in Sources */,
 				FA8641DD83F4377271B5EFBD /* KeychainAuthTokenStoreTests.swift in Sources */,
 				BBC8523A7DE4FE99B5F67F3A /* PersistenceModelTests.swift in Sources */,
 				E6E2C7B74AF4B1108D53FB2E /* RootViewTests.swift in Sources */,
