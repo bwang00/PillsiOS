@@ -33,7 +33,10 @@ final class HomeViewModel {
         let requestUserID = currentUserID()
 
         do {
-            let guideDTOs = try await api.fetchGuides(category: "breathing")
+            let breathing = try await api.fetchGuides(category: "breathing")
+            guard currentUserID() == requestUserID else { return }
+            let grounding = try await api.fetchGuides(category: "grounding")
+            let guideDTOs = breathing + grounding
             guard currentUserID() == requestUserID else { return }
             syncGuides(dtos: guideDTOs)
 
@@ -58,8 +61,14 @@ final class HomeViewModel {
     }
 
     func loadFromCache() {
-        let guideDescriptor = FetchDescriptor<Guide>(sortBy: [SortDescriptor(\.sortOrder)])
-        guides = (try? modelContext.fetch(guideDescriptor)) ?? []
+        let guideDescriptor = FetchDescriptor<Guide>(
+            predicate: #Predicate {
+                ($0.category == "breathing" || $0.category == "grounding") && $0.isActive
+            },
+            sortBy: [SortDescriptor(\.sortOrder)]
+        )
+        let cached = (try? modelContext.fetch(guideDescriptor)) ?? []
+        guides = cached.filter { $0.isRenderable }
 
         var sessionDescriptor = FetchDescriptor<Session>(
             sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
@@ -87,10 +96,13 @@ final class HomeViewModel {
         try? modelContext.save()
 
         let descriptor = FetchDescriptor<Guide>(
-            predicate: #Predicate { $0.category == "breathing" && $0.isActive },
+            predicate: #Predicate {
+                ($0.category == "breathing" || $0.category == "grounding") && $0.isActive
+            },
             sortBy: [SortDescriptor(\.sortOrder)]
         )
-        guides = (try? modelContext.fetch(descriptor)) ?? []
+        let fetched = (try? modelContext.fetch(descriptor)) ?? []
+        guides = fetched.filter { $0.isRenderable }
     }
 
     private func syncSessions(dtos: [SessionDTO]) {
