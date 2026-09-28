@@ -320,6 +320,46 @@ final class TTSPlayerTests: XCTestCase {
         XCTAssertTrue(player.isPlaying)
     }
 
+    // MARK: - cache
+
+    func testPrefetch_thenSpeakCached_playsFromCacheWithoutRefetch() async {
+        await mockAPI.configure(data: Self.makeValidWAVData())
+
+        let prefetchTask = Task { await player.prefetch(["左", "右"]) }
+        guard await waitForCompletion(of: prefetchTask, "prefetch of both cues") else { return }
+        var snapshot = await mockAPI.snapshot()
+        XCTAssertEqual(snapshot.callCount, 2, "prefetch should synthesize each cue once")
+
+        // Cached cues must play immediately without hitting the API again.
+        player.speakCached("左")
+        player.speakCached("右")
+        snapshot = await mockAPI.snapshot()
+        XCTAssertEqual(snapshot.callCount, 2, "cached cues must not refetch")
+        XCTAssertTrue(player.isPlaying, "cached cue should play")
+
+        player.stop()
+    }
+
+    func testSpeakCached_cacheMiss_fetchesOnceThenPlays() async {
+        await mockAPI.configure(data: Self.makeValidWAVData())
+
+        player.speakCached("左")
+        let fetched = await waitUntil("cache-miss cue to fetch") {
+            await self.mockAPI.snapshot().callCount == 1
+        }
+        guard fetched else { return }
+
+        let played = await waitUntil("cache-miss cue to play") { self.player.isPlaying }
+        guard played else { return }
+
+        // Once cached, a repeat must not refetch.
+        player.speakCached("左")
+        let snapshot = await mockAPI.snapshot()
+        XCTAssertEqual(snapshot.callCount, 1, "second speakCached should use the cache")
+
+        player.stop()
+    }
+
     private func waitForCompletion(
         of task: Task<Void, Never>,
         _ description: String,

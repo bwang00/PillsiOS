@@ -11,6 +11,7 @@ struct ButterflyHugView: View {
 
     @State private var viewModel: ButterflyHugViewModel?
     @State private var haptics: HapticPlayer = ImpactHapticPlayer()
+    @State private var voice: ButterflyVoiceCuePlayer = TTSButterflyVoiceCuePlayer(tts: TTSPlayer())
 
     var body: some View {
         VStack(spacing: 24) {
@@ -57,7 +58,7 @@ struct ButterflyHugView: View {
                 viewModel.handleViewAppearance(isAppActive: scenePhase == .active)
             } else {
                 let vm = ButterflyHugViewModel(
-                    guide: guide, modelContext: modelContext, haptics: haptics)
+                    guide: guide, modelContext: modelContext, haptics: haptics, voice: voice)
                 vm.handleViewAppearance(isAppActive: scenePhase == .active)
                 viewModel = vm
             }

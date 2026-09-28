@@ -83,6 +83,16 @@ private final class RecordingHaptics: HapticPlayer {
     func stop() { stopCount += 1 }
 }
 
+@MainActor
+private final class RecordingVoiceCue: ButterflyVoiceCuePlayer {
+    private(set) var cues: [ButterflySide] = []
+    private(set) var prepareCount = 0
+    private(set) var stopCount = 0
+    func prepare() async { prepareCount += 1 }
+    func cue(_ side: ButterflySide) { cues.append(side) }
+    func stop() { stopCount += 1 }
+}
+
 // MARK: - Tests
 
 @MainActor
@@ -91,6 +101,7 @@ final class ButterflyHugViewModelTests: XCTestCase {
     private var api: MockSessionAPI!
     private var sleeper: ManualSleeper!
     private var haptics: RecordingHaptics!
+    private var voice: RecordingVoiceCue!
     private var tracked: [Task<Void, Never>] = []
 
     override func setUp() {
@@ -102,6 +113,7 @@ final class ButterflyHugViewModelTests: XCTestCase {
         api = MockSessionAPI()
         sleeper = ManualSleeper()
         haptics = RecordingHaptics()
+        voice = RecordingVoiceCue()
     }
 
     override func tearDown() async throws {
@@ -121,7 +133,7 @@ final class ButterflyHugViewModelTests: XCTestCase {
     private func makeVM(now: @escaping () -> Date = Date.init) -> ButterflyHugViewModel {
         let vm = ButterflyHugViewModel(
             guide: makeGuide(), modelContext: container.mainContext,
-            haptics: haptics, api: api, sleeper: sleeper, now: now)
+            haptics: haptics, voice: voice, api: api, sleeper: sleeper, now: now)
         vm.handleViewAppearance(isAppActive: true)
         return vm
     }
@@ -177,6 +189,37 @@ final class ButterflyHugViewModelTests: XCTestCase {
         _ = vm.stop()
     }
 
+    func test_tapLoop_voiceCuesMatchTappedSides() async {
+        let vm = makeVM()
+        track(Task { await vm.start() })
+        await waitUntil { await self.sleeper.pendingCount() > 0 }
+        await sleeper.advanceOne()
+        await waitUntil { vm.tapCount >= 2 }
+        await sleeper.advanceOne()
+        await waitUntil { vm.tapCount >= 3 }
+        // The spoken cue must track the side actually tapped, in order.
+        XCTAssertEqual(Array(voice.cues.prefix(3)), [.left, .right, .left])
+        XCTAssertEqual(voice.cues, haptics.taps, "voice cue must fire for the same side as the haptic")
+        _ = vm.stop()
+    }
+
+    func test_start_preparesVoiceCuesOnce() async {
+        let vm = makeVM()
+        track(Task { await vm.start() })
+        await waitUntil { await self.sleeper.pendingCount() > 0 }
+        XCTAssertEqual(voice.prepareCount, 1, "start should warm the voice cue cache exactly once")
+        _ = vm.stop()
+    }
+
+    func test_stop_stopsVoice() async {
+        let vm = makeVM()
+        track(Task { await vm.start() })
+        await waitUntil { await self.sleeper.pendingCount() > 0 }
+        let stopTask = vm.stop()
+        if let stopTask { track(stopTask); await stopTask.value }
+        XCTAssertGreaterThanOrEqual(voice.stopCount, 1, "stop should silence the voice player")
+    }
+
     func test_stop_completesSessionWithElapsedSeconds() async {
         var seconds = 0.0
         let base = Date(timeIntervalSince1970: 0)
@@ -219,7 +262,7 @@ final class ButterflyHugViewModelTests: XCTestCase {
     func test_startWhenNotVisible_doesNotCreateSession() async {
         let vm = ButterflyHugViewModel(
             guide: makeGuide(), modelContext: container.mainContext,
-            haptics: haptics, api: api, sleeper: sleeper)
+            haptics: haptics, voice: voice, api: api, sleeper: sleeper)
         // No handleViewAppearance call -> canStart is false.
         await vm.start()
         let snap = await api.snapshot()

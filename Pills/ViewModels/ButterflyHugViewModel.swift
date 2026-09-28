@@ -58,6 +58,7 @@ final class ButterflyHugViewModel {
 
     private let modelContext: ModelContext
     private let haptics: HapticPlayer
+    private let voice: ButterflyVoiceCuePlayer
     private let api: BreathingSessionAPI
     private let sleeper: BreathingSleeper
     private let now: () -> Date
@@ -66,6 +67,7 @@ final class ButterflyHugViewModel {
         guide: Guide,
         modelContext: ModelContext,
         haptics: HapticPlayer,
+        voice: ButterflyVoiceCuePlayer,
         api: BreathingSessionAPI = APIClient.shared,
         sleeper: BreathingSleeper = TaskBreathingSleeper(),
         now: @escaping () -> Date = Date.init
@@ -73,6 +75,7 @@ final class ButterflyHugViewModel {
         self.guide = guide
         self.modelContext = modelContext
         self.haptics = haptics
+        self.voice = voice
         self.api = api
         self.sleeper = sleeper
         self.now = now
@@ -135,6 +138,8 @@ final class ButterflyHugViewModel {
         }
 
         guard canStart, lifecycleState == .starting, generation == runGeneration else { return }
+        await voice.prepare()
+        guard canStart, lifecycleState == .starting, generation == runGeneration else { return }
         sessionStartTime = now()
         lifecycleState = .running
         timerTask = Task { [weak self] in
@@ -168,6 +173,7 @@ final class ButterflyHugViewModel {
         timerTask = nil
         ctx.timerTask?.cancel()
         haptics.stop()
+        voice.stop()
         return ctx
     }
 
@@ -208,7 +214,9 @@ final class ButterflyHugViewModel {
 
     private func runTapLoop(generation runGeneration: UInt64) async {
         while lifecycleState == .running, generation == runGeneration, !Task.isCancelled {
-            haptics.tap(activeSide)
+            let side = activeSide
+            haptics.tap(side)
+            voice.cue(side)
             tapCount += 1
             if let start = sessionStartTime {
                 elapsedSeconds = max(0, Int(now().timeIntervalSince(start)))

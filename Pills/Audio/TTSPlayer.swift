@@ -51,6 +51,48 @@ final class TTSPlayer: ObservableObject {
         }
     }
 
+    // MARK: - Cache (low-latency cues)
+
+    private var cache: [String: Data] = [:]
+
+    /// Synthesizes and caches the given texts so later `speakCached` calls play
+    /// instantly. Used to warm short metronome cues (e.g. 左/右) before a run.
+    func prefetch(_ texts: [String]) async {
+        await withTaskGroup(of: (String, Data?).self) { group in
+            for text in texts where cache[text] == nil {
+                let api = self.api
+                group.addTask {
+                    do { return (text, try await api.synthesizeSpeech(text)) }
+                    catch { return (text, nil) }
+                }
+            }
+            for await (text, data) in group {
+                if let data { cache[text] = data }
+            }
+        }
+    }
+
+    /// Plays a cached cue immediately with no network latency. On a cache miss
+    /// it fetches, caches, and plays asynchronously.
+    func speakCached(_ text: String) {
+        if let data = cache[text] {
+            play(data: data)
+        } else {
+            Task { [weak self] in
+                guard let self, !Task.isCancelled else { return }
+                do {
+                    let data = try await self.api.synthesizeSpeech(text)
+                    guard !Task.isCancelled else { return }
+                    self.cache[text] = data
+                    self.play(data: data)
+                } catch {
+                    guard !Task.isCancelled, !(error is CancellationError) else { return }
+                    self.onError(error)
+                }
+            }
+        }
+    }
+
     /// Plays raw MP3/PCM data through AVAudioPlayer.
     func play(data: Data) {
         stop()
