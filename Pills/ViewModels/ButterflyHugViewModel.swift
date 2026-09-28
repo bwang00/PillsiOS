@@ -210,7 +210,6 @@ final class ButterflyHugViewModel {
         while lifecycleState == .running, generation == runGeneration, !Task.isCancelled {
             haptics.tap(activeSide)
             tapCount += 1
-            activeSide = (activeSide == .left) ? .right : .left
             if let start = sessionStartTime {
                 elapsedSeconds = max(0, Int(now().timeIntervalSince(start)))
             }
@@ -220,6 +219,10 @@ final class ButterflyHugViewModel {
                 return
             }
             guard lifecycleState == .running, generation == runGeneration, !Task.isCancelled else { return }
+            // Flip only after the beat interval: the tapped side stays lit (View
+            // highlights `activeSide`) for its own interval, and the flip prepares
+            // the next iteration's tap.
+            activeSide = (activeSide == .left) ? .right : .left
         }
     }
 

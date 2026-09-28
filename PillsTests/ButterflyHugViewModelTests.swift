@@ -153,6 +153,30 @@ final class ButterflyHugViewModelTests: XCTestCase {
         _ = vm.stop()
     }
 
+    func test_tapLoop_litWingMatchesSideJustTappedDuringInterval() async {
+        let vm = makeVM()
+        track(Task { await vm.start() })
+        await waitUntil { await self.sleeper.pendingCount() > 0 }
+        // Exactly one tap (left) has fired and the loop is suspended in its beat
+        // interval. The View highlights `activeSide` for the whole interval, so it
+        // must show the side whose haptic just fired — left, not the flipped next.
+        XCTAssertEqual(haptics.taps, [.left])
+        XCTAssertEqual(
+            vm.activeSide, .left,
+            "lit wing must match the side just tapped during its own beat interval")
+        // Advance one beat: the right tap fires and must stay lit during its interval.
+        await sleeper.advanceOne()
+        await waitUntil {
+            if vm.tapCount < 2 { return false }
+            return (await self.sleeper.pendingCount()) > 0
+        }
+        XCTAssertEqual(haptics.taps.prefix(2), [.left, .right])
+        XCTAssertEqual(
+            vm.activeSide, .right,
+            "lit wing must match the side just tapped during its own beat interval")
+        _ = vm.stop()
+    }
+
     func test_stop_completesSessionWithElapsedSeconds() async {
         var seconds = 0.0
         let base = Date(timeIntervalSince1970: 0)
