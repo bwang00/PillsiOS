@@ -54,7 +54,7 @@ This app talks to the Pills FastAPI backend at `pills.blueping.xyz`:
 - `POST /api/sessions` — Create session
 - `PATCH /api/sessions/:id` — Complete session
 - `POST /api/tts` — Synthesize speech (edge-tts)
-- `POST /api/ai-chat` — AI chat (Qwen3 Max)
+- `POST /api/ai-chat` — AI chat (Qwen3.8 Max)
 - `POST/GET /api/conversations` — Conversation management
 
 ## Build
